@@ -1,3 +1,3 @@
-#Background & Overview 
+# Background & Overview 
 
 Project Park is an open-world 3-d map (think HD pixel/block art) filled with project & resume related information about the author-Jaspreet Singh as well as fun puzzles. Users will be assigned an avatar and be able to navigate throughout the world as that avatar and guided by post signs. Users will also have to pass obstacles and fun puzzles to unlock some paths. One path for example might lead the user to my projects display area where they can see detailed information and links to all my projects with fun facts bugs and experences during development. Another path might be an "about me" section that lists my background and hobbies/ interests. In all, when you think ProjectPark, think self-marketing, resume display, and skill display, all on one fun platform, lightenting the experince for both parties!
