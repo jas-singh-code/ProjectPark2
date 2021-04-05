@@ -1,6 +1,21 @@
 # Background & Overview 
 
-Project Park is an open-world 3-d map (think HD pixel/block art) filled with project & resume related information about the author-Jaspreet Singh as well as fun puzzles. Users will be assigned an avatar and be able to navigate throughout the world as that avatar and guided by post signs. Users will also have to pass obstacles and fun puzzles to unlock some paths. One path for example might lead the user to my projects display area where they can see detailed information and links to all my projects with fun facts bugs and experences during development. Another path might be an "about me" section that lists my background and hobbies/ interests. In all, when you think ProjectPark, think self-marketing, resume display, and skill display, all on one fun platform, lightenting the experince for both parties!
+Project Park is a 3-d open world game where users can stroll though a park populated with the author's presonal project displays and resume information. Users start by learning the controlls in the stagging area and move onto the first area- Projects. Here the user can see a list with detailed information about each of the author's projects and any important takeways of each project along with bugs, funfacts, and a showcase of a particular code.
+
+To enter the Projects area however, users must solve a memory game puzzle. Ater solving the puzzle the user will be awarded props to play with to makw thier stroll through the park more enjoyable and interactive.
+
+Once satissified from thier stroll around projects area, users might find the 'About Me' area, or the 'Resume' area, both located conveinently next to the projects area. To enter the resume area users will have to solve another puzzle, however, the about me area of open to all. The puzzle for the Resume area is another easy, shuffle cups game where users will have to track the ball under the cup. After solving this puzzle they are allowed entry. This area will contain information about the resume of the author, past education, experince, skills, and job experiences and awards nd of course any internet presence in the form of links and pictures.
+
+The about me area, free to enter, is the last area users can go to. It contains information that the author wants you to know about related to him. It includes information about his hobbies, passions, side projects, bussiness ventures and of course, funfacts. 
+
+Finally, the game never ends but there is an option to end the game, after with, a modal with the authors' personal links are displayed.
+
+1. [Background and Overview](https://github.com/jas-singh-code/ProjectPark2/wiki/Background-and-Overview) 
+2. [Functionality and MVPs](https://github.com/jas-singh-code/ProjectPark2/wiki/Functionality-and-MVPs)
+3. [Architecture and Technology](https://github.com/jas-singh-code/ProjectPark2/wiki/Architecture-and-Technology)
+4. [Wireframe](https://wireframe.cc/pro/pp/f694d0636428749)
+5. [Implementation Timeline](https://github.com/jas-singh-code/ProjectPark/wiki/Implementation-Timeline)
+
 
 
 # Functionality and MVPs
