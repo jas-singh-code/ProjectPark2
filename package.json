@@ -15,7 +15,10 @@
   },
   "author": "mrcjbradley",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "gsap": "^3.6.1",
+    "three": "^0.127.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.13.14",
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
