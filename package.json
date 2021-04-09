@@ -16,8 +16,10 @@
   "author": "mrcjbradley",
   "license": "ISC",
   "dependencies": {
+    "@types/dat.gui": "^0.7.6",
     "gsap": "^3.6.1",
-    "three": "^0.127.0"
+    "three": "^0.127.0",
+    "three-orbit-controls": "^82.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.14",
