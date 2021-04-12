@@ -2,10 +2,25 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
+// world = new OIMO.World({ 
+//     timestep: 1/60, 
+//     iterations: 8, 
+//     broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
+//     worldscale: 1, // scale full world 
+//     random: true,  // randomize sample
+//     info: false,   // calculate statistic or not
+//     gravity: [0,-9.8,0] 
+// });
+
 const container = document.querySelector('#scene-canvas');
+// const ctx = container.getContext('2d');
+// // ctx.fillRect(25, 25, 100, 100);
+// //     ctx.clearRect(45, 45, 60, 60);
+// //     ctx.strokeRect(50, 50, 50, 50);
+
 
 let keyboard = {}
-let player = { height: 1.8, speed: 0.35 };
+let player = { height: 1.8, speed: 0.15 };
 let meshFloor;
 let angle = 0.02;
 let collisions = [];
@@ -39,7 +54,7 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
     console.log(car);
     // calculateCollisionPoints(car);
     box = new THREE.Box3().setFromObject( car );
-	scene.add( car );
+	  scene.add( car );
     rotationPoint.add(car);
 
 
@@ -73,7 +88,7 @@ scene.add(dirLight);
 
 
 /// lines
-camera.position.set(0,11, 0);
+camera.position.set(0,6, 0);
 const material2 = new THREE.LineBasicMaterial({color: 0x0000ff})
 const points = [];
 points.push( new THREE.Vector3( -10, 0, 4 ) );
@@ -208,21 +223,27 @@ function detectCollisions() {
  
           // Determine the X axis push.
           if (objectCenterX > playerCenterX) {
-            rotationPoint.position.x -= 1;
+            rotationPoint.children[0].position.x -= 6;
             camera.position.x -= 1;
+            console.log('objcentX', car.position, rotationPoint, camera.position);
           } else {
-            rotationPoint.position.x += 1;
+            rotationPoint.children[0].position.x += 6;
             camera.position.x += 1;
+            console.log('objcentX else', car.position, rotationPoint, camera.position);
+
           }
         }
         if ( bounds.zMin <= collisions[ index ].zMax && bounds.zMax >= collisions[ index ].zMin ) {
           // Determine the Z axis push.
           if (objectCenterZ > playerCenterZ) {
-          rotationPoint.position.z -= 1;
+          rotationPoint.children[0].position.z -= 1;
           camera.position.z -= 1;
+          console.log('objcentZ', car.position, rotationPoint.position, camera.position);
+
           } else {
-            rotationPoint.position.z += 1;
+            rotationPoint.children[0].position.z += 1;
             camera.position.z += 1;
+            console.log('objcentZ else ', car.position, rotationPoint, camera.position);
           }
         }
       }
@@ -240,23 +261,22 @@ function animate() {
     updatePositionForCamera(camera);
     if ( collisions.length > 0 ) {
         detectCollisions();
-        // camera.getWorldDirection(car.position);
     };
 	if (keyboard["ArrowUp"]){
 		// camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
 		// camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
 
         car.position.z += Math.sin(car.rotation.y) * player.speed;
-		car.position.x += -Math.cos(car.rotation.y) * player.speed;
+	    	car.position.x += -Math.cos(car.rotation.y) * player.speed;
         
-        // camera.position.z = car.position.z - 4;
-        // camera.position.x = car.position.x - 4;
+        camera.position.z = car.position.z - 4;
+        camera.position.x = car.position.x - 4;
         camera.lookAt(car.position);
 	}
 
-    if (keyboard["keyW"]){
+    if (keyboard["KeyW"]){
         camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
-		camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
+		    camera.position.z += Math.cos(camera.rotation.y) * player.speed;
     }
 
 	if (keyboard["ArrowDown"]){
@@ -266,34 +286,19 @@ function animate() {
         car.position.z -= Math.sin(car.rotation.y) * player.speed;
 		car.position.x -= -Math.cos(car.rotation.y) * player.speed;
 
-        // camera.position.z = car.position.z - 4;
-        // camera.position.x = car.position.x - 4;
+        camera.position.z = car.position.z - 4;
+        camera.position.x = car.position.x - 4;
         camera.lookAt(car.position);
 
 	}
 
-    if (keyboard["keyS"]){
-        camera.position.x += Math.sin(camera.rotation.y) * player.speed;
-		camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
-    }
-
 	if (keyboard["ArrowLeft"]){
-		// camera.rotation.y += Math.PI * 0.01;
 		car.rotation.y += Math.PI * angle;
 	}
 
-    if (keyboard["KeyA"]){
-		camera.rotation.y += Math.PI * 0.01;
-	}
-
 	if (keyboard["ArrowRight"]){
-		// camera.rotation.y -= Math.PI * 0.01;
 		car.rotation.y -= Math.PI * angle;
 	}
-     if (keyboard["KeyD"]){
-		camera.rotation.y -= Math.PI * 0.01;
-	}
-
 
     if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
     {
@@ -303,7 +308,6 @@ function animate() {
         player.speed = .35
         angle = 0.02;
     }
-    // car.rotation.y += 0.01;
     torus.rotation.y += 0.01;
 	renderer.render( scene, camera );
     
