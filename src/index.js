@@ -2,6 +2,10 @@ import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Body, World } from "oimo";
+
+// Physijs.scripts.worker = 'js/physijs_worker.js';
+// Physijs.scripts.worker = '/js/ammo.js'
+
 const world = new World({ 
     timestep: 1/60, 
     iterations: 8, 
@@ -48,8 +52,13 @@ let box;
 
 //defining 3 parameters
 const scene = new THREE.Scene();
+// const scene = new Physijs.Scene({ reportsize: 50, fixedTimeStep: 1 / 60 });
+// scene.setGravity(new THREE.Vector3(0, -10, 0));
+
 const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
-let helper = new THREE.CameraHelper(camera);
+
+
+// let helper = new THREE.CameraHelper(camera);
 // scene.add(helper);
 const renderer = new THREE.WebGLRenderer({canvas: container, alpha: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -104,21 +113,28 @@ const line = new THREE.Line( geometry2, material2 );
 ///lines
 
 //ring
-const geometry3 = new THREE.TorusGeometry( 5, 2, 16, 100 );
-const material3 = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
-const torus = new THREE.Mesh( geometry3, material3 );
-torus.position.x = 30;
-torus.position.y = 0;
-torus.position.z = 30;
-scene.add( torus );
+// const geometry3 = new THREE.TorusGeometry( 5, 2, 16, 100 );
+// const material3 = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+// const torus = new THREE.Mesh( geometry3, material3 );
+// const torus = new Physijs.BoxMesh( geometry3, material3 );
+// torus.position.x = 30;
+// torus.position.y = 0;
+// torus.position.z = 30;
+// scene.add( torus );
 ///ring
 // FLOOR
 
 const ground = world.add({size:[500, 500, 50], pos:[0,-1,0],  rot: [270, 0, 0], density: 1 });
+
 meshFloor = new THREE.Mesh(
 	new THREE.PlaneBufferGeometry(100, 100, 100, 100),
 	new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
 )
+// meshFloor = new Physijs.BoxMesh(
+// 	new THREE.PlaneBufferGeometry(100, 100, 100, 100),
+// 	new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
+// )
+
 meshFloor.position.copy(ground.getPosition());
 meshFloor.quaternion.copy(ground.getQuaternion());
 scene.add(meshFloor);
@@ -131,6 +147,7 @@ console.log(meshFloor);
 let geometry4 = new THREE.BoxBufferGeometry(10, 10, 10);
 let material4 = new THREE.MeshNormalMaterial();
 let cube = new THREE.Mesh(geometry4, material4);
+// let cube = new Physijs.BoxMesh(geometry4, material4);
 cube.castShadow = true;
 cube.receiveShadow = true;
 cube.scale.set(1, 1, 1);
@@ -154,15 +171,15 @@ function keyUp (event){
 document.body.addEventListener('keydown', keyDown);
 document.body.addEventListener('keyup', keyUp);
 
-function updatePositionForCamera(camera) {
-  const dx = Math.abs(torus.position.x - car.position.x);
-  const dz = Math.abs(torus.position.z - car.position.z);
-  if (dz < 2 && dx < 2 ){
-      torus.material.color.setHex( 0xffffff );
-  } else {
-      torus.material.color.setHex( 0x000000 )
-  }
-}
+// function updatePositionForCamera(camera) {
+//   const dx = Math.abs(torus.position.x - car.position.x);
+//   const dz = Math.abs(torus.position.z - car.position.z);
+//   if (dz < 2 && dx < 2 ){
+//       torus.material.color.setHex( 0xffffff );
+//   } else {
+//       torus.material.color.setHex( 0x000000 )
+//   }
+// }
 
 function updateCar(){
 	if (keyboard["ArrowUp"]){
@@ -200,10 +217,11 @@ function updateCar(){
 
 // animaition loop 60frames/sec
 function animate() {
+    // scene.simulate();
   requestAnimationFrame( animate )
   updateCar()
-  torus.rotation.y += 0.01;
-  world.step();
+//   torus.rotation.y += 0.01;
+    // world.step();
 	renderer.render( scene, camera );
 }
 animate()
