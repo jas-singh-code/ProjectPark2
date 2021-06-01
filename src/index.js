@@ -1,16 +1,7 @@
 import * as THREE from 'three';
-import { Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-// world = new OIMO.World({ 
-//     timestep: 1/60, 
-//     iterations: 8, 
-//     broadphase: 2, // 1 brute force, 2 sweep and prune, 3 volume tree
-//     worldscale: 1, // scale full world 
-//     random: true,  // randomize sample
-//     info: false,   // calculate statistic or not
-//     gravity: [0,-9.8,0] 
-// });
+
 
 const container = document.querySelector('#scene-canvas');
 // const ctx = container.getContext('2d');
@@ -26,12 +17,11 @@ let angle = 0.02;
 let collisions = [];
 let box;
 let stopMovement = false;
-let rotationPoint = new THREE.Object3D();
-rotationPoint.position.set( 0, 0, 0 );
 
 //defining 3 parameters
 const scene = new THREE.Scene();
-// const scene = new Physijs.Scene({ reportsize: 50, fixedTimeStep: 1 / 60 });
+// let scene;
+// scene = new Physijs.Scene();
 // scene.setGravity(new THREE.Vector3(0, -10, 0));
 
 const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
@@ -45,22 +35,17 @@ renderer.setClearColor( 0x000000, 0 ); // the default
 renderer.shadowMap.enabled = true;
 document.body.append( renderer.domElement );
 
-scene.add(rotationPoint);
-
 const loader = new GLTFLoader();
 let car = undefined;
 let animations = undefined;
 loader.load( 'src/car_sel.glb', function ( gltf ) {
   	car = gltf.scene;
-	animations = gltf.animations; // AnimationClip {name: "EmptyAction.004", ...
-	// console.log(animations);
-	car.scale.set(0.2, 0.2, 0.3);
+	  animations = gltf.animations; 
+  	car.scale.set(0.2, 0.2, 0.3);
     car.rotateY( 3 * Math.PI/2);
     console.log(car);
-    // calculateCollisionPoints(car);
     box = new THREE.Box3().setFromObject( car );
 	  scene.add( car );
-    rotationPoint.add(car);
 
 
 }, undefined, function ( error ) {
@@ -88,7 +73,7 @@ dirLight.shadow.camera.left = d * -1;
 dirLight.shadow.camera.right = d;
 dirLight.shadow.camera.top = d;
 dirLight.shadow.camera.bottom = d * -1;
-// Add directional Light to scene
+
 scene.add(dirLight);
 
 
@@ -112,9 +97,6 @@ torus.position.x = 10;
 torus.position.y = 0;
 torus.position.z = 10;
 scene.add( torus );
-console.log(torus);
-calculateCollisionPoints(torus);
-///ring
 
 meshFloor = new THREE.Mesh(
 	new THREE.PlaneGeometry(100, 100, 100, 100),
@@ -153,16 +135,8 @@ meshFloor.rotation.x -= Math.PI /2;
 meshFloor.position.y -= .9
 scene.add(meshFloor);
 
-// function rotateObject(object, degreeX=0, degreeY=0, degreeZ=0) {
-//    object.rotateX(THREE.Math.degToRad(degreeX));
-//    object.rotateY(THREE.Math.degToRad(degreeY));
-//    object.rotateZ(THREE.Math.degToRad(degreeZ));
-// }
-
-
 function keyDown (event){
 	keyboard[event.code] = true;
-    console.log(event.code);
 }
 
 function keyUp (event){
@@ -171,168 +145,41 @@ function keyUp (event){
 document.body.addEventListener('keydown', keyDown);
 document.body.addEventListener('keyup', keyUp);
 
-// function updatePositionForCamera(camera) {
-//   const dx = Math.abs(torus.position.x - car.position.x);
-//   const dz = Math.abs(torus.position.z - car.position.z);
-//   if (dz < 2 && dx < 2 ){
-//       torus.material.color.setHex( 0xffffff );
-//   } else {
-//       torus.material.color.setHex( 0x000000 )
-//   }
-// }
 function updatePositionForCamera(camera) {
-    // fixed distance from camera to the object
-    const dist = 8;
-    const cwd = new THREE.Vector3();
-    
-    
-    // camera.getWorldDirection(cwd.position);
-    // camera.getWorldDirection(car.position);
-    
-    // car.position.multiplyScalar(dist);
-    // car.position.add(camera.position);
-    // car.position.y -= 6;
-    // car.position.z = 2;
-    // cwd.add(car.position);
-    // camera.position.add(car.position);
-const dx = Math.abs(torus.position.x - car.position.x);
-const dz = Math.abs(torus.position.z - car.position.z);
+  const dx = Math.abs(torus.position.x - car.position.x);
+  const dz = Math.abs(torus.position.z - car.position.z);
 
-    if (dz < 2 && dx < 2 ){
-        torus.material.color.setHex( 0xffffff );
-    } else {
-         torus.material.color.setHex( 0x000000 )
-    }
-    
-	
-    // camera.position.set( car.position);
-    // camera.getWorldDirection(car.position);
-    // camera.Translate(0, 0, -10); // where `r` is the desired distance
-    
-}
-// COLLISION DECT
-
-
-function calculateCollisionPoints( mesh, scale, type = 'collision' ) { 
-  // Compute the bounding box after scale, translation, etc.
-  let bbox = new THREE.Box3().setFromObject(mesh);
- 
-  let bounds = {
-    type: type,
-    xMin: bbox.min.x,
-    xMax: bbox.max.x,
-    yMin: bbox.min.y,
-    yMax: bbox.max.y,
-    zMin: bbox.min.z,
-    zMax: bbox.max.z,
-  };
- 
-  collisions.push( bounds );
-}
-
-function detectCollisions() {
-  // Get the user's current collision area.
-  if (car){
-      box = new THREE.Box3().setFromObject( car );
-  }
-    // console.log(rotationPoint, "rotationpoint")
-
-  var bounds = {
-    xMin: rotationPoint.position.x - box.min.x,
-    xMax: rotationPoint.position.x + box.max.x,
-    yMin: rotationPoint.position.y - box.min.y,
-    yMax: rotationPoint.position.y + box.max.y,
-    zMin: rotationPoint.position.z - box.min.z,
-    zMax: rotationPoint.position.z + box.max.z,
-  };
- 
-  // Run through each object and detect if there is a collision.
-  for ( let index = 0; index < collisions.length; index ++ ) {
- 
-    if (collisions[ index ].type == 'collision' ) {
-      if ( ( bounds.xMin <= collisions[ index ].xMax && bounds.xMax >= collisions[ index ].xMin ) &&
-         ( bounds.yMin <= collisions[ index ].yMax && bounds.yMax >= collisions[ index ].yMin) &&
-         ( bounds.zMin <= collisions[ index ].zMax && bounds.zMax >= collisions[ index ].zMin) ) {
-        // We hit a solid object! Stop all movements.
-        stopMovement = true;
- 
-        // Move the object in the clear. Detect the best direction to move.
-        if ( bounds.xMin <= collisions[ index ].xMax && bounds.xMax >= collisions[ index ].xMin ) {
-          // Determine center then push out accordingly.
-          let objectCenterX = ((collisions[ index ].xMax - collisions[ index ].xMin) / 2) + collisions[ index ].xMin;
-          let playerCenterX = ((bounds.xMax - bounds.xMin) / 2) + bounds.xMin;
-          let objectCenterZ = ((collisions[ index ].zMax - collisions[ index ].zMin) / 2) + collisions[ index ].zMin;
-          let playerCenterZ = ((bounds.zMax - bounds.zMin) / 2) + bounds.zMin;
- 
-          // Determine the X axis push.
-          if (objectCenterX > playerCenterX) {
-            rotationPoint.children[0].position.x -= 6;
-            camera.position.x -= 1;
-            console.log('objcentX', car.position, rotationPoint, camera.position);
-          } else {
-            rotationPoint.children[0].position.x += 6;
-            camera.position.x += 1;
-            console.log('objcentX else', car.position, rotationPoint, camera.position);
-
-          }
-        }
-        if ( bounds.zMin <= collisions[ index ].zMax && bounds.zMax >= collisions[ index ].zMin ) {
-          // Determine the Z axis push.
-          if (objectCenterZ > playerCenterZ) {
-          rotationPoint.children[0].position.z -= 1;
-          camera.position.z -= 1;
-          console.log('objcentZ', car.position, rotationPoint.position, camera.position);
-
-          } else {
-            rotationPoint.children[0].position.z += 1;
-            camera.position.z += 1;
-            console.log('objcentZ else ', car.position, rotationPoint, camera.position);
-          }
-        }
-      }
-    }
+  if (dz < 2 && dx < 2 ){
+      torus.material.color.setHex( 0xffffff );
+  } else {
+        torus.material.color.setHex( 0x000000 )
   }
 }
 
-
-// COLLISION DECT
-
-
-// animaition loop 60frames/sec
 function animate() {
-    requestAnimationFrame( animate );
-    updatePositionForCamera(camera);
-    if ( collisions.length > 0 ) {
-        detectCollisions();
-    };
-	if (keyboard["ArrowUp"]){
-		// camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
-		// camera.position.z += -Math.cos(camera.rotation.y) * player.speed;
+  requestAnimationFrame( animate );
+  updatePositionForCamera(camera);
 
-        car.position.z += Math.sin(car.rotation.y) * player.speed;
-	    	car.position.x += -Math.cos(car.rotation.y) * player.speed;
-        
-        camera.position.z = car.position.z - 4;
-        camera.position.x = car.position.x - 4;
-        camera.lookAt(car.position);
+	if (keyboard["ArrowUp"]){
+    car.position.z += Math.sin(car.rotation.y) * player.speed;
+    car.position.x += -Math.cos(car.rotation.y) * player.speed;
+    
+    camera.position.z = car.position.z - 4;
+    camera.position.x = car.position.x - 4;
+    camera.lookAt(car.position);
 	}
 
-    if (keyboard["KeyW"]){
-        camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
-		    camera.position.z += Math.cos(camera.rotation.y) * player.speed;
-    }
+    // if (keyboard["KeyW"]){
+    //   camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
+    //   camera.position.z += Math.cos(camera.rotation.y) * player.speed;
+    // }
 
 	if (keyboard["ArrowDown"]){
-		// camera.position.x += Math.sin(camera.rotation.y) * player.speed;
-		// camera.position.z -= -Math.cos(camera.rotation.y) * player.speed;
-
-        car.position.z -= Math.sin(car.rotation.y) * player.speed;
+    car.position.z -= Math.sin(car.rotation.y) * player.speed;
 		car.position.x -= -Math.cos(car.rotation.y) * player.speed;
-
-        camera.position.z = car.position.z - 4;
-        camera.position.x = car.position.x - 4;
-        camera.lookAt(car.position);
-
+    camera.position.z = car.position.z - 4;
+    camera.position.x = car.position.x - 4;
+    camera.lookAt(car.position);
 	}
 
 	if (keyboard["ArrowLeft"]){
