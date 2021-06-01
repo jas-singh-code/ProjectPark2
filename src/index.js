@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import * as CANNON from 'cannon-es';
 
-
+const world = new CANNON.World({
+  gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
+})
 
 const container = document.querySelector('#scene-canvas');
 // const ctx = container.getContext('2d');
@@ -35,6 +38,32 @@ renderer.setClearColor( 0x000000, 0 ); // the default
 renderer.shadowMap.enabled = true;
 document.body.append( renderer.domElement );
 
+///////////////////////////////////
+
+const radius = 5 // m
+const geometry6 = new THREE.SphereGeometry(radius)
+const material6 = new THREE.MeshNormalMaterial()
+const sphereMesh = new THREE.Mesh(geometry6, material6)
+scene.add(sphereMesh)
+const sphereBody = new CANNON.Body({
+  mass: 15, // kg
+  shape: new CANNON.Sphere(radius),
+})
+sphereBody.position.set(0, 10, 0) // m
+world.addBody(sphereBody);
+console.log('world', world, 'sphere', sphereBody);
+
+
+const groundBody = new CANNON.Body({
+  mass: 0, // can also be achieved by setting the mass to 0
+  shape: new CANNON.Plane(),
+})
+groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
+world.addBody(groundBody)
+
+
+
+/////////////////////////////////////////
 const loader = new GLTFLoader();
 let car = undefined;
 let animations = undefined;
@@ -102,19 +131,6 @@ meshFloor = new THREE.Mesh(
 	new THREE.PlaneGeometry(100, 100, 100, 100),
 	new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
 )
-// // meshFloor = new Physijs.BoxMesh(
-// // 	new THREE.PlaneBufferGeometry(100, 100, 100, 100),
-// // 	new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
-// // )
-
-// meshFloor.position.copy(ground.getPosition());
-// meshFloor.quaternion.copy(ground.getQuaternion());
-// scene.add(meshFloor);
-// // meshFloor.rotation.x -= Math.PI /2;
-// // meshFloor.position.y = -1;
-// console.log(meshFloor);
-// // FLOOR
-
 
 // let geometry4 = new THREE.BoxBufferGeometry(10, 10, 10);
 // let material4 = new THREE.MeshNormalMaterial();
@@ -156,9 +172,23 @@ function updatePositionForCamera(camera) {
   }
 }
 
+
+
+const timeStep = 1 / 60; // seconds
+let lastCallTime;
+//////////////////////////////////////////////////////
 function animate() {
   requestAnimationFrame( animate );
   updatePositionForCamera(camera);
+
+  const time = performance.now() / 1000 // seconds
+  if (!lastCallTime) {
+    world.step(timeStep)
+  } else {
+    const dt = time - lastCallTime
+    world.step(timeStep, dt)
+  }
+  lastCallTime = time;
 
 	if (keyboard["ArrowUp"]){
     car.position.z += Math.sin(car.rotation.y) * player.speed;
@@ -199,7 +229,9 @@ function animate() {
         angle = 0.02;
     }
     torus.rotation.y += 0.01;
-	renderer.render( scene, camera );
-    
+    // console.log(`Sphere y position: ${sphereBody.position.y}`)
+  sphereMesh.position.copy(sphereBody.position)
+  sphereMesh.quaternion.copy(sphereBody.quaternion)
+  renderer.render( scene, camera );
 }
 animate()

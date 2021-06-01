@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/dat.gui": "^0.7.6",
+    "cannon-es": "^0.17.1",
     "gsap": "^3.6.1",
     "three": "^0.127.0",
     "three-orbit-controls": "^82.1.0"
