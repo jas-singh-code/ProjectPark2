@@ -2,10 +2,6 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon-es';
 
-const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -4.82, 0), // m/s²
-})
-
 const container = document.querySelector('#scene-canvas');
 
 let keyboard = {}
@@ -16,45 +12,91 @@ let box;
 
 
 //defining 3 parameters
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
-const renderer = new THREE.WebGLRenderer({canvas: container, alpha: true});
-renderer.setSize( window.innerWidth, window.innerHeight );
-renderer.setClearColor( 0x000000, 0 ); // the default
-renderer.shadowMap.enabled = true;
-document.body.append( renderer.domElement );
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
+  const renderer = new THREE.WebGLRenderer({canvas: container, alpha: true});
+  renderer.setSize( window.innerWidth, window.innerHeight );
+  renderer.setClearColor( 0x000000, 0 ); // the default
+  renderer.shadowMap.enabled = true;
+  document.body.append( renderer.domElement );
+  
+
+  const world = new CANNON.World({
+    gravity: new CANNON.Vec3(0, -19, 0), // m/s²
+  })
+  world.broadphase = new CANNON.SAPBroadphase(world);
+  world.defaultContactMaterial.friction = 0;
+
+  const groundMaterial = new CANNON.Material("groundMaterial");
+  const wheelMaterial = new CANNON.Material("wheelMaterial");
+  const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
+    friction: 0.9,
+    restitution: 0.9,
+    contactEquationStiffness: 100000
+  });
+
+  // We must add the contact materials to the world
+  world.addContactMaterial(wheelGroundContactMaterial);
+  world.defaultContactMaterial = wheelGroundContactMaterial;
+
+
+
+  const groundBody = new CANNON.Body({
+    mass: 0, // can also be achieved by setting the mass to 0
+    shape: new CANNON.Plane(),
+    material: groundMaterial
+  })
+  groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
+  groundBody.position.set(0, -1, 0)
+  world.addBody(groundBody)
+
+
+  const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 2));
+  const chassisBody = new CANNON.Body({ mass: 150, material: groundMaterial });
+  chassisBody.addShape(chassisShape);
+  chassisBody.position.set(0, 4, 0);
+
 
 ///////////////////////////////////
-
+///////////////PROPS/////////////////////////////////////////////
 const radius = 3 // m
 const geometry6 = new THREE.SphereGeometry(radius)
 const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
 const sphereMesh = new THREE.Mesh(geometry6, material6)
 scene.add(sphereMesh)
 const sphereBody = new CANNON.Body({
-  mass: 15, // kg
+  mass: 40, // kg
   shape: new CANNON.Sphere(radius),
 })
-sphereBody.position.set(0, 50, 0) // m
+sphereBody.position.set(5, 10, 5) // m
 world.addBody(sphereBody);
-console.log('world', world, 'sphere', sphereBody);
 
 
-const groundBody = new CANNON.Body({
-  mass: 0, // can also be achieved by setting the mass to 0
-  shape: new CANNON.Plane(),
-})
-groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
-groundBody.position.set(0, -1, 0)
-world.addBody(groundBody)
-
+const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+const cube = new THREE.Mesh(cubeGeometry, material3);
+cube.position.set( -5, 3, -5);
+scene.add(cube);
 const size = 2;
 const halfExtents = new CANNON.Vec3(size, size, size);
 const boxShape = new CANNON.Box(halfExtents);
-const boxBody = new CANNON.Body({mass: 4, shape: boxShape});
-boxBody.position.set(10, 10, 10);
-world.addBody(boxBody);
+const cubeBody = new CANNON.Body({mass: 100, shape: boxShape, material: wheelMaterial});
+world.addBody(cubeBody);
+///////////////////////////////////////////////////////////////
 
+
+// const boxBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
+
+const shape = new CANNON.Sphere(2);
+const boxBody = new CANNON.Body({
+  mass: 40,
+  shape: shape
+})
+// carBody.position.set(10,10,10);
+// world.addBody(carBody);
+
+boxBody.position.set(-10, 6, -10);
+world.addBody(boxBody);
 
 /////////////////////////////////////////
 const loader = new GLTFLoader();
@@ -65,7 +107,6 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
 	  animations = gltf.animations; 
   	car.scale.set(0.3, 0.3, 0.4);
     car.rotateY( 3 * Math.PI/2);
-    console.log(car);
     box = new THREE.Box3().setFromObject( car );
 	  scene.add( car );
 
@@ -112,13 +153,16 @@ const line = new THREE.Line( geometry2, material2 );
 ///lines
 
 //ring
-const geometry3 = new THREE.TorusGeometry( 5, 2, 16, 100 );
-const material3 = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+let {x, y, z, w} = {x: 5, y:2, z: 3, w: 10}
+const geometry3 = new THREE.TorusGeometry( x, y, z, w );
+const material3 = new THREE.MeshToonMaterial( { color: 0xffff00 } );
 const torus = new THREE.Mesh( geometry3, material3 );
 torus.position.x = 10;
 torus.position.y = 0;
 torus.position.z = 10;
 scene.add( torus );
+console.log(torus);
+let shrink = false;
 
 meshFloor = new THREE.Mesh(
 	new THREE.PlaneGeometry(100, 100, 100, 100),
@@ -144,9 +188,20 @@ function updatePositionForCamera(camera) {
 
   if (dz < 2 && dx < 2 ){
       torus.material.color.setHex( 0xffffff );
-  } else {
-        torus.material.color.setHex( 0x000000 )
+      // torus.geometry = new THREE.TorusGeometry( 3, 1, 3, 10 ) works great
+      shrink = true;
+      setTimeout(function (){ 
+        const selected = scene.getObjectById(torus.id);
+        scene.remove(selected);
+      }, 1000);
+  // } else {
+  //       torus.material.color.setHex( 0x000000 )
   }
+}
+
+function removeObject(object){
+  const selected = scene.getObjectById(object.id);
+  scene.remove(selected);
 }
 
 const timeStep = 1 / 60; // seconds
@@ -166,18 +221,13 @@ function animate() {
   lastCallTime = time;
 
 	if (keyboard["ArrowUp"]){
-    boxBody.position.z += Math.sin(car.rotation.y) * player.speed;
-    boxBody.position.x += -Math.cos(car.rotation.y) * player.speed;
+    car.position.z += Math.sin(car.rotation.y) * player.speed;
+    car.position.x += -Math.cos(car.rotation.y) * player.speed;
     
-    camera.position.z = boxBody.position.z - 4;
-    camera.position.x = boxBody.position.x - 4;
+    camera.position.z = car.position.z - 4;
+    camera.position.x = car.position.x - 4;
     camera.lookAt(car.position);
 	}
-
-    // if (keyboard["KeyW"]){
-    //   camera.position.x -= Math.sin(camera.rotation.y) * player.speed;
-    //   camera.position.z += Math.cos(camera.rotation.y) * player.speed;
-    // }
 
 	if (keyboard["ArrowDown"]){
     car.position.z -= Math.sin(car.rotation.y) * player.speed;
@@ -189,27 +239,36 @@ function animate() {
 
 	if (keyboard["ArrowLeft"]){
 		car.rotation.y += Math.PI * angle;
-	}
+  }
 
 	if (keyboard["ArrowRight"]){
 		car.rotation.y -= Math.PI * angle;
-	}
+  }
 
-    if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
-    {
-        angle = 0.03;
-        player.speed = 0.5
-    } else {
-        player.speed = .35
-        angle = 0.02;
-    }
-    torus.rotation.y += 0.01;
-    // console.log(`box y position: ${boxBody.position.y}`)
-  car.position.copy(boxBody.position);
-  car.quaternion.copy(boxBody.quaternion);
-  sphereMesh.position.copy(sphereBody.position)
-  sphereMesh.quaternion.copy(sphereBody.quaternion)
-  // render()
+  if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
+  {
+      angle = 0.03;
+      player.speed = 0.5
+  } else {
+      player.speed = .35
+      angle = 0.02;
+  }
+
+  torus.rotation.y += 0.01;
+   
+  boxBody.position.copy(car.position);
+  boxBody.quaternion.copy(car.quaternion);
+  sphereMesh.position.copy(sphereBody.position);
+  sphereMesh.quaternion.copy(sphereBody.quaternion);
+  cube.position.copy(cubeBody.position);
+  cube.quaternion.copy(cubeBody.quaternion);
+  
+  if(shrink){
+    torus.geometry = new THREE.TorusGeometry( x -= 0.075, y -=0.035 , z += .03 , w );
+    torus.rotation.y += 0.08
+  };
+  camera.lookAt(car.position);
+
   renderer.render( scene, camera );
 }
 animate()
