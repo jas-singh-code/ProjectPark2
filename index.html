@@ -11,11 +11,13 @@
   <body>
     <script type="text/javascript" src="js/three.js"></script>
     <canvas id="scene-canvas">
-
     </canvas>
-    
-    <script src="./dist/main.js">
-
+    <script src="./dist/main.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const game = new Game();
+        window.game = game;//For debugging only
+      });
     </script>
   </body>
 </html>

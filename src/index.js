@@ -3,35 +3,21 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon-es';
 
 const world = new CANNON.World({
-  gravity: new CANNON.Vec3(0, -9.82, 0), // m/s²
+  gravity: new CANNON.Vec3(0, -4.82, 0), // m/s²
 })
 
 const container = document.querySelector('#scene-canvas');
-// const ctx = container.getContext('2d');
-// // ctx.fillRect(25, 25, 100, 100);
-// //     ctx.clearRect(45, 45, 60, 60);
-// //     ctx.strokeRect(50, 50, 50, 50);
-
 
 let keyboard = {}
 let player = { height: 1.8, speed: 0.15 };
 let meshFloor;
 let angle = 0.02;
-let collisions = [];
 let box;
-let stopMovement = false;
+
 
 //defining 3 parameters
 const scene = new THREE.Scene();
-// let scene;
-// scene = new Physijs.Scene();
-// scene.setGravity(new THREE.Vector3(0, -10, 0));
-
 const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
-
-
-// let helper = new THREE.CameraHelper(camera);
-// scene.add(helper);
 const renderer = new THREE.WebGLRenderer({canvas: container, alpha: true});
 renderer.setSize( window.innerWidth, window.innerHeight );
 renderer.setClearColor( 0x000000, 0 ); // the default
@@ -40,16 +26,16 @@ document.body.append( renderer.domElement );
 
 ///////////////////////////////////
 
-const radius = 5 // m
+const radius = 3 // m
 const geometry6 = new THREE.SphereGeometry(radius)
-const material6 = new THREE.MeshNormalMaterial()
+const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
 const sphereMesh = new THREE.Mesh(geometry6, material6)
 scene.add(sphereMesh)
 const sphereBody = new CANNON.Body({
   mass: 15, // kg
   shape: new CANNON.Sphere(radius),
 })
-sphereBody.position.set(0, 10, 0) // m
+sphereBody.position.set(0, 50, 0) // m
 world.addBody(sphereBody);
 console.log('world', world, 'sphere', sphereBody);
 
@@ -59,8 +45,15 @@ const groundBody = new CANNON.Body({
   shape: new CANNON.Plane(),
 })
 groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
+groundBody.position.set(0, -1, 0)
 world.addBody(groundBody)
 
+const size = 2;
+const halfExtents = new CANNON.Vec3(size, size, size);
+const boxShape = new CANNON.Box(halfExtents);
+const boxBody = new CANNON.Body({mass: 4, shape: boxShape});
+boxBody.position.set(10, 10, 10);
+world.addBody(boxBody);
 
 
 /////////////////////////////////////////
@@ -70,7 +63,7 @@ let animations = undefined;
 loader.load( 'src/car_sel.glb', function ( gltf ) {
   	car = gltf.scene;
 	  animations = gltf.animations; 
-  	car.scale.set(0.2, 0.2, 0.3);
+  	car.scale.set(0.3, 0.3, 0.4);
     car.rotateY( 3 * Math.PI/2);
     console.log(car);
     box = new THREE.Box3().setFromObject( car );
@@ -131,24 +124,8 @@ meshFloor = new THREE.Mesh(
 	new THREE.PlaneGeometry(100, 100, 100, 100),
 	new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
 )
-
-// let geometry4 = new THREE.BoxBufferGeometry(10, 10, 10);
-// let material4 = new THREE.MeshNormalMaterial();
-// let cube = new THREE.Mesh(geometry4, material4);
-// // let cube = new Physijs.BoxMesh(geometry4, material4);
-// cube.castShadow = true;
-// cube.receiveShadow = true;
-// cube.scale.set(1, 1, 1);
-// cube.position.copy(body.getPosition());
-// cube.quaternion.copy(body.getQuaternion());
-// scene.add(cube);
-// // cube.position.x = -20;
-// // cube.position.z = -20;
-// // cube.position.y = 5.1;
-
-// console.log(cube);
 meshFloor.rotation.x -= Math.PI /2;
-meshFloor.position.y -= .9
+meshFloor.position.y -= 1
 scene.add(meshFloor);
 
 function keyDown (event){
@@ -172,8 +149,6 @@ function updatePositionForCamera(camera) {
   }
 }
 
-
-
 const timeStep = 1 / 60; // seconds
 let lastCallTime;
 //////////////////////////////////////////////////////
@@ -191,11 +166,11 @@ function animate() {
   lastCallTime = time;
 
 	if (keyboard["ArrowUp"]){
-    car.position.z += Math.sin(car.rotation.y) * player.speed;
-    car.position.x += -Math.cos(car.rotation.y) * player.speed;
+    boxBody.position.z += Math.sin(car.rotation.y) * player.speed;
+    boxBody.position.x += -Math.cos(car.rotation.y) * player.speed;
     
-    camera.position.z = car.position.z - 4;
-    camera.position.x = car.position.x - 4;
+    camera.position.z = boxBody.position.z - 4;
+    camera.position.x = boxBody.position.x - 4;
     camera.lookAt(car.position);
 	}
 
@@ -229,9 +204,12 @@ function animate() {
         angle = 0.02;
     }
     torus.rotation.y += 0.01;
-    // console.log(`Sphere y position: ${sphereBody.position.y}`)
+    // console.log(`box y position: ${boxBody.position.y}`)
+  car.position.copy(boxBody.position);
+  car.quaternion.copy(boxBody.quaternion);
   sphereMesh.position.copy(sphereBody.position)
   sphereMesh.quaternion.copy(sphereBody.quaternion)
+  // render()
   renderer.render( scene, camera );
 }
 animate()
