@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon-es';
-
-const container = document.querySelector('#scene-canvas');
+import cannonDebugger from 'cannon-es-debugger';
 
 let keyboard = {
   ArrowUp: false,
@@ -13,6 +12,7 @@ let meshFloor;
 let angle = 0.02;
 let box;
 
+const container = document.querySelector('#scene-canvas');
 
 //defining 3 parameters
 
@@ -26,15 +26,17 @@ let box;
   
 
   const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -19, 0), // m/s²
+    gravity: new CANNON.Vec3(0, -15, 0), // m/s²
   })
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.defaultContactMaterial.friction = 0;
 
+  cannonDebugger(scene, world.bodies)
+
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
   const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
-    friction: 0.9,
+    friction: 0.3,
     restitution: 0.9,
     contactEquationStiffness: 100000
   });
@@ -51,15 +53,15 @@ let box;
     material: groundMaterial
   })
   groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
-  groundBody.position.set(0, -1, 0)
+  groundBody.position.set(0, 0, 0)
   world.addBody(groundBody)
 
   meshFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 100, 100, 100),
+    new THREE.PlaneGeometry(200, 200, 100, 100),
     new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
   )
   meshFloor.rotation.x -= Math.PI /2;
-  meshFloor.position.y -= 1
+  meshFloor.position.y =0
   scene.add(meshFloor);
 
   
@@ -76,7 +78,16 @@ let box;
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
   meshWall1.position.z = 50
-  // scene.add(meshWall1); 
+  scene.add(meshWall1);
+
+  const wallBound1 = new CANNON.Body({
+    shape: new CANNON.Plane(),
+    material: groundMaterial,
+    mass: 0,
+  })
+  wallBound1.position.set(0,0,50);
+  wallBound1.quaternion.setFromEuler
+  world.addBody(wallBound1);
 
   const meshWall2 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
@@ -98,11 +109,21 @@ let box;
 
   const meshWall3 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
+    new THREE.MeshBasicMaterial({ color: 0x0000FF, wireframe: true})
   )
   meshWall3.rotation.y -= Math.PI / 2;
   meshWall3.position.x = 50;
   scene.add(meshWall3);
+
+  const wallBound3 = new CANNON.Body({
+    mass: 0,
+    shape: new CANNON.Plane(),
+    material: groundMaterial
+  })
+  
+  wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0)
+  wallBound3.position.set(50, 0 , 0);
+  world.addBody(wallBound3);
 
   const meshWall4 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
@@ -112,12 +133,22 @@ let box;
   meshWall4.position.x = -50;
   scene.add(meshWall4);
 
+  const wallBound4= new CANNON.Body({
+    mass:0,
+    shape: new CANNON.Plane(),
+    material: groundMaterial,
+  })
+  wallBound4.position.set(-50, 0 , 0);
+  world.addBody(wallBound4)
+  wallBound4.quaternion.setFromEuler(0, Math.PI / 2, 0); // Make sure to use correct +- sign for plane so that plane is facing up. Affects gravity...
+  // wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) ^^ SAME THING ^^
+
   ///////////////////////////END//////////////////////////////////
 
 
 ///////////////////////////////////
 ///////////////PROPS/////////////////////////////////////////////
-const radius = 3 // m
+const radius = 4.5 // m
 const geometry6 = new THREE.SphereGeometry(radius)
 const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
 const sphereMesh = new THREE.Mesh(geometry6, material6)
@@ -126,7 +157,7 @@ const sphereBody = new CANNON.Body({
   mass: 40, // kg
   shape: new CANNON.Sphere(radius),
 })
-sphereBody.position.set(5, 10, 5) // m
+sphereBody.position.set(0, 20, 0) // m
 world.addBody(sphereBody);
 
 
@@ -145,16 +176,17 @@ world.addBody(cubeBody);
 
 // const boxBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
 
-const shape = new CANNON.Sphere(2);
+const shape = new CANNON.Sphere(3);
 const boxBody = new CANNON.Body({
-  mass: 40,
+  mass: 200,
   shape: shape
 })
-// carBody.position.set(10,10,10);
-// world.addBody(carBody);
 
 boxBody.position.set(-10, 6, -10);
 world.addBody(boxBody);
+
+const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -43 };
+let userScore= 0
 
 /////////////////////////////////////////
 const loader = new GLTFLoader();
@@ -167,7 +199,7 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
     car.rotateY( 3 * Math.PI/2);
     car.rotateY( Math.PI);
     box = new THREE.Box3().setFromObject( car );
-    car.position.set(0, 0.3, -40);
+    car.position.set(carX, carY, carZ);
 	  scene.add( car );
 
 
@@ -202,7 +234,7 @@ scene.add(dirLight);
 
 /// lines
 // camera.position.set(-20 ,6, 0);
-camera.position.set(-5, 3, -45);
+camera.position.set(-5, 3, carZ - 5);
 const material2 = new THREE.LineBasicMaterial({color: 0x0000ff})
 const points = [];
 points.push( new THREE.Vector3( -10, 0, 4 ) );
@@ -218,11 +250,8 @@ let {x, y, z, w} = {x: 5, y:2, z: 3, w: 10}
 const geometry3 = new THREE.TorusGeometry( x, y, z, w );
 const material3 = new THREE.MeshToonMaterial( { color: 0xffff00 } );
 const torus = new THREE.Mesh( geometry3, material3 );
-torus.position.x = 10;
-torus.position.y = 0;
-torus.position.z = 10;
 scene.add( torus );
-console.log(torus);
+torus.position.set(0, 1, -20);
 let shrink = false;
 
 ////////////////////
@@ -253,6 +282,7 @@ function updatePositionForCamera(camera) {
       setTimeout(function (){ 
         const selected = scene.getObjectById(torus.id);
         scene.remove(selected);
+        userScore += 1;
       }, 1000);
   // } else {
   //       torus.material.color.setHex( 0x000000 )
@@ -272,11 +302,15 @@ function controlling(){
 
 const timeStep = 1 / 60; // seconds
 let lastCallTime;
+const score = document.getElementById('score-holder');
+
+score.innerHTML =`Score: ${userScore}`;
+
 //////////////////////////////////////////////////////
 function animate() {
   requestAnimationFrame( animate );
   updatePositionForCamera(camera);
-
+  
   const time = performance.now() / 1000 // seconds
   if (!lastCallTime) {
     world.step(timeStep)
@@ -327,7 +361,7 @@ function animate() {
   }
 
   torus.rotation.y += 0.01;
-   console.log(keyboard);
+  
 
     boxBody.position.copy(car.position);
     boxBody.quaternion.copy(car.quaternion);

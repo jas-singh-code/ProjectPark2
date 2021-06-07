@@ -1,0 +1,35 @@
+@mixin basic-box-shadow($color) {
+  box-shadow: 3px 3px 5px 5px $color, 1px 0px 1px $color;
+}
+
+$main-color: rgb(0, 0, 104);
+$accent-color: darken($main-color, 20%);
+$background-color: lighten($main-color, 60%);
+
+LAYOUT
+
+#scene-canvas {
+  // background-color: red;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: rgb(63,94,251);
+  background: radial-gradient(circle, rgba(63,94,251,1) 0%, rgba(252,70,107,1) 100%);
+}
+
+#score-holder{
+  position: absolute;
+  z-index: 10;
+  font-size: 40px;
+  color: white;
+  font-weight: 500;
+  top: 0;
+  left: 0;
+}
+
+
+// TYPOGRAPHY
+h2 {
+  font-size: 3rem;
+}
