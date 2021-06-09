@@ -304,6 +304,9 @@ function updatePositionForCamera(camera) {
   const skip = document.getElementById('skip-action');
   const begin = document.getElementById('begin-action');
   const welcomeMenu2 = document.getElementById('welcome-menu-2');
+  const slide1 = document.getElementById('slide-1');
+  const slide2 = document.getElementById('slide-2');
+
   const viewFullscreen = document.getElementById('view-fullscreen');
   let clicked = 1;
   const message = document.getElementById('message');
@@ -312,6 +315,8 @@ function updatePositionForCamera(camera) {
   function(){
     welcomeMenu.classList.remove('display');
     welcomeMenu.classList.add('hidden');
+    welcomeMenu2.classList.remove('display');
+    welcomeMenu2.classList.add('hidden');
   })
 
   skip.addEventListener('click', 
@@ -321,10 +326,12 @@ function updatePositionForCamera(camera) {
   })
 
   begin.addEventListener('click', function(){
-    welcomeMenu.classList.remove('display');
-    welcomeMenu.classList.add('hidden');
-    welcomeMenu2.classList.remove('hidden');
-    welcomeMenu2.classList.add('display');
+    slide1.classList.remove('display');
+    slide1.classList.add('hidden');
+    slide2.classList.remove('hidden');
+    slide2.classList.add('display');
+    // welcomeMenu2.classList.remove('hidden');
+    // welcomeMenu2.classList.add('display');
   })
 
   const docEle = document.documentElement;
