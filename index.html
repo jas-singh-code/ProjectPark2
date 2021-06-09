@@ -11,9 +11,35 @@
   
   <body>
     <script type="text/javascript" src="js/three.js"></script>
-    <div id='score-holder'>Score</div>
-    <canvas id="scene-canvas">
-    </canvas>
+    <div id='game'>
+      <div id='message' class='hidden'>Please Click the Full Screen button twice to Enable it
+        <div class='cancle'>x</div>
+      </div>
+      <div id='score-holder'>Score</div>
+      <div id='view-fullscreen' class="view-fullscreen">Full Screen</div>
+      <div id='welcome-menu' class='display'>
+        <div id="cancle">x</div>
+        <h2>Welcome to Project Park!</h2>
+        <div>Project Park is an immersive, 3-dimentional world where users can view the author's projects, resume, accomplishments, and much more.</div>
+        <div class='ready'>Are you ready to interact?</div>
+        <div class='welcome-actions'>
+          <div id='begin-action'>Begin Tutorial</div>
+          <div id='skip-action'>Skip To Game</div>
+        </div>
+      </div>
+  
+      <div id='welcome-menu-2' class='hidden'>
+        <div id="cancle">x</div>
+        <h2>Welcome to Project Park!</h2>
+        <div>You will have your car to rome around the area as you please. Here are the controls:</div>
+        <div class="game-controls">
+          <img src='keyboard.png' alt='keyboard' class="keyboard">
+        </div>
+        <div></div>
+      </div>
+      <canvas id="scene-canvas">
+      </canvas>
+    </div>
     <script src="./dist/main.js"></script>
     <!-- <script>
       document.addEventListener("DOMContentLoaded", function () {

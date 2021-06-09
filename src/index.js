@@ -3,6 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon-es';
 import cannonDebugger from 'cannon-es-debugger';
 
+
 let keyboard = {
   ArrowUp: false,
   ArrowDown: false,
@@ -14,10 +15,11 @@ let box;
 
 const container = document.querySelector('#scene-canvas');
 
+
 //defining 3 parameters
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
+  let camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 );
   const renderer = new THREE.WebGLRenderer({canvas: container, alpha: true});
   renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.setClearColor( 0x000000, 0 ); // the default
@@ -26,7 +28,7 @@ const container = document.querySelector('#scene-canvas');
   
 
   const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -15, 0), // m/s²
+    gravity: new CANNON.Vec3(0, -55, 0), // m/s²
   })
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.defaultContactMaterial.friction = 0;
@@ -69,121 +71,127 @@ const container = document.querySelector('#scene-canvas');
   // const chassisBody = new CANNON.Body({ mass: 150, material: groundMaterial });
   // chassisBody.addShape(chassisShape);
   // chassisBody.position.set(0, 4, 0);
-  ////////////////////// WALLS /////////////////////////////////
+
+  // THREE.JS WALLS /////////////////////////////////
 
   const meshWall1 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
+    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true}) 
   )
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
   meshWall1.position.z = 50
   scene.add(meshWall1);
 
-  const wallBound1 = new CANNON.Body({
-    shape: new CANNON.Plane(),
-    material: groundMaterial,
-    mass: 0,
-  })
-  wallBound1.position.set(0,0,50);
-  wallBound1.quaternion.setFromEuler
-  world.addBody(wallBound1);
-
+  
   const meshWall2 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xf55742, wireframe: true})
+    new THREE.MeshBasicMaterial({ color: 0xf55742, wireframe: true}) 
   );
   meshWall2.position.z = -50;
   scene.add(meshWall2);
 
-  const wallBound2 = new CANNON.Body({
-    mass: 0, // can also be achieved by setting the mass to 0
-    shape: new CANNON.Plane(),
-    material: groundMaterial
-  })
-  // wallBound2.quaternion.setFromEuler(-Math.PI / 2, 0, 0) // make it face up
-  wallBound2.position.set(0, 0, -50)
-  world.addBody(wallBound2)
-
-
-
   const meshWall3 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0x0000FF, wireframe: true})
+    new THREE.MeshBasicMaterial({ color: 0x0000FF, wireframe: true}) 
   )
   meshWall3.rotation.y -= Math.PI / 2;
   meshWall3.position.x = 50;
   scene.add(meshWall3);
-
-  const wallBound3 = new CANNON.Body({
-    mass: 0,
-    shape: new CANNON.Plane(),
-    material: groundMaterial
-  })
   
-  wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0)
-  wallBound3.position.set(50, 0 , 0);
-  world.addBody(wallBound3);
-
   const meshWall4 = new THREE.Mesh(
     new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
-  )
+    new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true}) 
+    )
   meshWall4.rotation.y -= Math.PI / 2;
   meshWall4.position.x = -50;
   scene.add(meshWall4);
 
+  // CANNON-ES WALLS /////////////////////////////
+
+  const halfExtentsX = new CANNON.Vec3(50, 9 , 5);
+  const halfExtentsZ = new CANNON.Vec3(5, 9, 50);
+
+  const wallBound1 = new CANNON.Body({
+    shape: new CANNON.Box(halfExtentsX),
+    material: groundMaterial,
+    mass: 0,
+  })
+  wallBound1.position.set(0,3, 55);
+  // wallBound1.quaternion.setFromEuler(0, 0 , -Math.PI/2)   //WHITE
+  world.addBody(wallBound1);
+  
+  const wallBound2 = new CANNON.Body({
+    mass: 0, // can also be achieved by setting the mass to 0
+    shape: new CANNON.Box(halfExtentsX),
+    material: groundMaterial
+  })
+  // wallBound2.quaternion.setFromEuler(0, 0, -Math.PI / 2) //RED
+  wallBound2.position.set(0, 3, -60)
+  world.addBody(wallBound2)
+  
+  const wallBound3 = new CANNON.Body({
+    mass: 0,
+    shape: new CANNON.Box(halfExtentsX),
+    material: groundMaterial
+  })
+  wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0) //BLUE
+  wallBound3.position.set(56, 3 , 0);
+  world.addBody(wallBound3);
+  
   const wallBound4= new CANNON.Body({
-    mass:0,
-    shape: new CANNON.Plane(),
+    mass: 0,
+    shape: new CANNON.Box(halfExtentsX),
     material: groundMaterial,
   })
-  wallBound4.position.set(-50, 0 , 0);
-  world.addBody(wallBound4)
-  wallBound4.quaternion.setFromEuler(0, Math.PI / 2, 0); // Make sure to use correct +- sign for plane so that plane is facing up. Affects gravity...
+  wallBound4.position.set(-56, 4.5 , 0);
+  // wallBound4.quaternion.setFromEuler(0, -Math.PI / 2, 0);  
+  wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) // YELLOW
+  // world.addBody(wallBound4)
+
+
+  // Make sure to use correct +- sign for plane so that plane is facing up. Affects gravity...
   // wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) ^^ SAME THING ^^
 
-  ///////////////////////////END//////////////////////////////////
+
+  //PROPS/////////////////////////////////////////////
+    
+  const radius = 5.1 // m
+  const geometry6 = new THREE.SphereGeometry(radius)
+  const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
+  const ballMesh = new THREE.Mesh(geometry6, material6)
+  scene.add(ballMesh)
+  const ballBody = new CANNON.Body({
+    mass: 7, // kg
+    shape: new CANNON.Sphere(radius),
+  })
+  ballBody.position.set(0, 20, 0) // m
+  world.addBody(ballBody);
 
 
-///////////////////////////////////
-///////////////PROPS/////////////////////////////////////////////
-const radius = 4.5 // m
-const geometry6 = new THREE.SphereGeometry(radius)
-const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
-const sphereMesh = new THREE.Mesh(geometry6, material6)
-scene.add(sphereMesh)
-const sphereBody = new CANNON.Body({
-  mass: 40, // kg
-  shape: new CANNON.Sphere(radius),
-})
-sphereBody.position.set(0, 20, 0) // m
-world.addBody(sphereBody);
-
-
-const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
-const cube = new THREE.Mesh(cubeGeometry, material3);
-// cube.position.set( 100, 100, 3);
-scene.add(cube);
-const size = 2;
-const halfExtents = new CANNON.Vec3(size, size, size);
-const boxShape = new CANNON.Box(halfExtents);
-const cubeBody = new CANNON.Body({mass: 100, shape: boxShape, material: wheelMaterial});
-cubeBody.position.set(50, 5, 50);
-world.addBody(cubeBody);
+  const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
+  const cube = new THREE.Mesh(cubeGeometry, material3);
+  // cube.position.set( 100, 100, 3);
+  scene.add(cube);
+  const size = 2;
+  const halfExtents = new CANNON.Vec3(size, size, size);
+  const boxShape = new CANNON.Box(halfExtents);
+  const cubeBody = new CANNON.Body({mass: 100, shape: boxShape, material: wheelMaterial});
+  cubeBody.position.set(50, 5, 50);
+  world.addBody(cubeBody);
 ///////////////////////////////////////////////////////////////
 
 
-// const boxBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
+// const carBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
 
 const shape = new CANNON.Sphere(3);
-const boxBody = new CANNON.Body({
+const carBody = new CANNON.Body({
   mass: 200,
   shape: shape
 })
 
-boxBody.position.set(-10, 6, -10);
-world.addBody(boxBody);
+carBody.position.set(-10, 6, -10);
+world.addBody(carBody);
 
 const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -43 };
 let userScore= 0
@@ -289,16 +297,71 @@ function updatePositionForCamera(camera) {
   }
 }
 
-const falsy = (ele) => !!ele;
+// Event Listeners ///////////////////
 
-function removeObject(object){
-  const selected = scene.getObjectById(object.id);
-  scene.remove(selected);
-}
+  const welcomeMenu = document.getElementById('welcome-menu');
+  const cancle = document.getElementById('cancle');
+  const skip = document.getElementById('skip-action');
+  const begin = document.getElementById('begin-action');
+  const welcomeMenu2 = document.getElementById('welcome-menu-2');
+  const viewFullscreen = document.getElementById('view-fullscreen');
+  let clicked = 1;
+  const message = document.getElementById('message');
 
-function controlling(){
-  Object.values(keyboard).some(falsy) ? true :false;
-}
+  cancle.addEventListener('click', 
+  function(){
+    welcomeMenu.classList.remove('display');
+    welcomeMenu.classList.add('hidden');
+  })
+
+  skip.addEventListener('click', 
+  function(){
+    welcomeMenu.classList.remove('display');
+    welcomeMenu.classList.add('hidden');
+  })
+
+  begin.addEventListener('click', function(){
+    welcomeMenu.classList.remove('display');
+    welcomeMenu.classList.add('hidden');
+    welcomeMenu2.classList.remove('hidden');
+    welcomeMenu2.classList.add('display');
+  })
+
+  const docEle = document.documentElement;
+  viewFullscreen.addEventListener('click', function(){
+    if(docEle.requestFullScreen) {
+      docEle.requestFullScreen();
+      console.log('requestFullScreen worked');
+    } else if(docEle.mozRequestFullScreen) {
+      docEle.mozRequestFullScreen();
+      console.log('mozRequestFullScreen worked');
+    } else if(docEle.webkitRequestFullScreen) {
+      docEle.webkitRequestFullScreen()
+    }else{
+      console.log('none worked')
+    }
+    console.log(document.documentElement.clientHeight)
+    // if (clicked === 1){
+    //   message.classList.remove('hidden')
+    //   message.classList.add('message');
+    // }
+    clicked -= 1;
+  })
+
+
+
+//   docEle.addEventListener('fullscreenchange', (event) => {
+//   // document.fullscreenElement will point to the element that
+//   // is in fullscreen mode if there is one. If there isn't one,
+//   // the value of the property is null.
+//   if (document.fullscreenElement) {
+//     console.log(`Element: ${document.fullscreenElement.id} entered full-screen mode.`);
+//   } else {
+//     console.log('Leaving full-screen mode.');
+//   }
+// });
+
+/////////////////////////////////////
 
 const timeStep = 1 / 60; // seconds
 let lastCallTime;
@@ -307,6 +370,7 @@ const score = document.getElementById('score-holder');
 score.innerHTML =`Score: ${userScore}`;
 
 //////////////////////////////////////////////////////
+
 function animate() {
   requestAnimationFrame( animate );
   updatePositionForCamera(camera);
@@ -353,24 +417,29 @@ function animate() {
 
   if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
   {
+      player.speed = 1.95
       angle = 0.03;
-      player.speed = 0.5
   } else {
       player.speed = .35
       angle = 0.02;
   }
 
   torus.rotation.y += 0.01;
-  
 
-    boxBody.position.copy(car.position);
-    boxBody.quaternion.copy(car.quaternion);
+  carBody.position.copy(car.position);
+  carBody.quaternion.copy(car.quaternion);
 
-  sphereMesh.position.copy(sphereBody.position);
-  sphereMesh.quaternion.copy(sphereBody.quaternion);
+  ballMesh.position.copy(ballBody.position);
+  ballMesh.quaternion.copy(ballBody.quaternion);
   cube.position.copy(cubeBody.position);
   cube.quaternion.copy(cubeBody.quaternion);
-  
+  if(clicked != 1 && clicked > -30){
+    camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 )
+    renderer.setSize( window.innerWidth, window.innerHeight )
+    clicked -= 1;
+    console.log(document.fullscreenElement)
+  }
+
   if(shrink){
     torus.geometry = new THREE.TorusGeometry( x -= 0.075, y -=0.035 , z += .03 , w );
     torus.rotation.y += 0.08
