@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import * as CANNON from 'cannon-es';
 import cannonDebugger from 'cannon-es-debugger';
+import { TetrahedronGeometry, Vector3 } from 'three';
 
 
 let keyboard = {
@@ -12,6 +13,14 @@ let player = { height: 1.8, speed: 0.15 };
 let meshFloor;
 let angle = 0.02;
 let box;
+const colors = {
+  0: 0xFF0000, 
+  1: 0x002EFF,
+  2: 0x00B413,
+  3: 0xFFF000,
+  4: 0xFF00BD,
+  5: 0xB200FF
+}
 
 const container = document.querySelector('#scene-canvas');
 
@@ -33,7 +42,6 @@ const container = document.querySelector('#scene-canvas');
   world.broadphase = new CANNON.SAPBroadphase(world);
   world.defaultContactMaterial.friction = 0;
 
-  cannonDebugger(scene, world.bodies)
 
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
@@ -47,6 +55,8 @@ const container = document.querySelector('#scene-canvas');
   world.addContactMaterial(wheelGroundContactMaterial);
   world.defaultContactMaterial = wheelGroundContactMaterial;
 
+
+  cannonDebugger(scene, world.bodies);
 
 
   const groundBody = new CANNON.Body({
@@ -75,49 +85,50 @@ const container = document.querySelector('#scene-canvas');
   // THREE.JS WALLS /////////////////////////////////
 
   const meshWall1 = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true}) 
+    new THREE.BoxGeometry(100, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false}) 
   )
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
-  meshWall1.position.z = 50
+  meshWall1.position.z = 100
   scene.add(meshWall1);
 
   
   const meshWall2 = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xf55742, wireframe: true}) 
+    new THREE.BoxGeometry(100, 10, 10),
+    new THREE.MeshToonMaterial({ color: 0xf55742, wireframe: false, opacity: 0.27}) 
   );
-  meshWall2.position.z = -50;
+  meshWall2.position.z = -100;
   scene.add(meshWall2);
 
   const meshWall3 = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0x0000FF, wireframe: true}) 
+    new THREE.BoxGeometry(200, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xF0F8FF, wireframe: false}) // LEFT WALL
   )
   meshWall3.rotation.y -= Math.PI / 2;
-  meshWall3.position.x = 50;
+  meshWall3.position.x = 100;
   scene.add(meshWall3);
   
   const meshWall4 = new THREE.Mesh(
-    new THREE.PlaneGeometry(100, 10, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true}) 
+    new THREE.BoxGeometry(200, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: false}) // RIGHT WALL
     )
   meshWall4.rotation.y -= Math.PI / 2;
-  meshWall4.position.x = -50;
+  meshWall4.position.x = -100;
   scene.add(meshWall4);
 
   // CANNON-ES WALLS /////////////////////////////
 
   const halfExtentsX = new CANNON.Vec3(50, 9 , 5);
-  const halfExtentsZ = new CANNON.Vec3(5, 9, 50);
+  const halfExtentsLarge = new CANNON.Vec3(100, 9 , 5);
+
 
   const wallBound1 = new CANNON.Body({
     shape: new CANNON.Box(halfExtentsX),
     material: groundMaterial,
     mass: 0,
   })
-  wallBound1.position.set(0,3, 55);
+  wallBound1.position.set(0,3, 100);
   // wallBound1.quaternion.setFromEuler(0, 0 , -Math.PI/2)   //WHITE
   world.addBody(wallBound1);
   
@@ -127,24 +138,24 @@ const container = document.querySelector('#scene-canvas');
     material: groundMaterial
   })
   // wallBound2.quaternion.setFromEuler(0, 0, -Math.PI / 2) //RED
-  wallBound2.position.set(0, 3, -60)
+  wallBound2.position.set(0, 3, -100)
   world.addBody(wallBound2)
   
   const wallBound3 = new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(halfExtentsX),
+    shape: new CANNON.Box(halfExtentsLarge),
     material: groundMaterial
   })
   wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0) //BLUE
-  wallBound3.position.set(56, 3 , 0);
+  wallBound3.position.set(100, 3 , 0);
   world.addBody(wallBound3);
   
   const wallBound4= new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(halfExtentsX),
+    shape: new CANNON.Box(halfExtentsLarge),
     material: groundMaterial,
   })
-  wallBound4.position.set(-56, 4.5 , 0);
+  wallBound4.position.set(-100, 4.5 , 0);
   // wallBound4.quaternion.setFromEuler(0, -Math.PI / 2, 0);  
   wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) // YELLOW
   // world.addBody(wallBound4)
@@ -156,7 +167,7 @@ const container = document.querySelector('#scene-canvas');
 
   //PROPS/////////////////////////////////////////////
     
-  const radius = 5.1 // m
+  let radius = 5.1 // m
   const geometry6 = new THREE.SphereGeometry(radius)
   const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
   const ballMesh = new THREE.Mesh(geometry6, material6)
@@ -182,6 +193,7 @@ const container = document.querySelector('#scene-canvas');
 ///////////////////////////////////////////////////////////////
 
 
+
 // const carBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
 
 const shape = new CANNON.Sphere(3);
@@ -193,7 +205,7 @@ const carBody = new CANNON.Body({
 carBody.position.set(-10, 6, -10);
 world.addBody(carBody);
 
-const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -43 };
+const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -100 };
 let userScore= 0
 
 /////////////////////////////////////////
@@ -218,6 +230,25 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
 }, function (){
 	car = gltf.scene;
 });
+
+const arrowGeo = new THREE.CylinderGeometry(0, 1, 4, 32)
+const arrowMesh = new THREE.MeshNormalMaterial({color: 0xFF00FF});
+const arrow = new THREE.Mesh(arrowGeo, arrowMesh);
+arrow.position.set(-20, 5, 0);
+
+scene.add(arrow)
+console.log(arrow)
+const goalGeo = new THREE.BoxGeometry(25, 5, 5);
+const goalMater = new THREE.MeshToonMaterial({color: 0x00FF00})
+const goalFar = new THREE.Mesh(goalGeo, goalMater)
+goalFar.position.set(0, 2.5, 90)
+scene.add(goalFar);
+console.log(goalFar)
+
+// if(car){
+//   car.add(arrow)
+// }
+
 
 // Add lights
 let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
@@ -279,23 +310,58 @@ function keyUp (event){
 document.body.addEventListener('keydown', keyDown);
 document.body.addEventListener('keyup', keyUp);
 
+let explode = false;
+
+const textLoader = new THREE.FontLoader();
+
+loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
+
+	const geometry = new THREE.TextGeometry( 'Goal!', {
+		font: THREE.Font,
+		size: 80,
+		height: 5,
+		curveSegments: 12,
+		bevelEnabled: true,
+		bevelThickness: 10,
+		bevelSize: 8,
+		bevelOffset: 0,
+		bevelSegments: 5
+	} );
+} );
+
+scene.add()
+
 function updatePositionForCamera(camera) {
   const dx = Math.abs(torus.position.x - car.position.x);
   const dz = Math.abs(torus.position.z - car.position.z);
+  const goalx = Math.abs(goalFar.position.x - ballMesh.position.x);
+  const goalz = Math.abs(goalFar.position.z - ballMesh.position.z);
 
   if (dz < 2 && dx < 2 ){
       torus.material.color.setHex( 0xffffff );
       // torus.geometry = new THREE.TorusGeometry( 3, 1, 3, 10 ) works great
+      userScore += 10;
       shrink = true;
       setTimeout(function (){ 
         const selected = scene.getObjectById(torus.id);
         scene.remove(selected);
-        userScore += 1;
       }, 1000);
-  // } else {
-  //       torus.material.color.setHex( 0x000000 )
+  }
+
+  if(goalx < 1 && goalz < 1){
+    const select = scene.getObjectById(ballMesh.id);
+    userScore += 1000;
+    explode = true;
+    setTimeout(function(){
+      ballMesh.position.set(0,0,0);
+      ballBody.position.set(0,0,0)
+      scene.remove(select); 
+      world.removeBody(ballBody);
+    }, 1000)
+
   }
 }
+
 
 // Event Listeners ///////////////////
 
@@ -307,10 +373,16 @@ function updatePositionForCamera(camera) {
   const slide1 = document.getElementById('slide-1');
   const slide2 = document.getElementById('slide-2');
   const next = document.getElementById('next');
+  const viewPhysics = document.getElementById('enable-physics');
+  let enablePhysics = false;
 
   const viewFullscreen = document.getElementById('view-fullscreen');
   let clicked = 1;
   const message = document.getElementById('message');
+
+  viewPhysics.addEventListener('click', () => {
+    enablePhysics = !enablePhysics;
+  })
 
   cancle.addEventListener('click', 
   function(){
@@ -342,50 +414,27 @@ function updatePositionForCamera(camera) {
   viewFullscreen.addEventListener('click', function(){
     if(docEle.requestFullScreen) {
       docEle.requestFullScreen();
-      console.log('requestFullScreen worked');
     } else if(docEle.mozRequestFullScreen) {
       docEle.mozRequestFullScreen();
-      console.log('mozRequestFullScreen worked');
     } else if(docEle.webkitRequestFullScreen) {
       docEle.webkitRequestFullScreen()
-    }else{
-      console.log('none worked')
     }
-    console.log(document.documentElement.clientHeight)
-    // if (clicked === 1){
-    //   message.classList.remove('hidden')
-    //   message.classList.add('message');
-    // }
     clicked -= 1;
   })
-
-
-
-//   docEle.addEventListener('fullscreenchange', (event) => {
-//   // document.fullscreenElement will point to the element that
-//   // is in fullscreen mode if there is one. If there isn't one,
-//   // the value of the property is null.
-//   if (document.fullscreenElement) {
-//     console.log(`Element: ${document.fullscreenElement.id} entered full-screen mode.`);
-//   } else {
-//     console.log('Leaving full-screen mode.');
-//   }
-// });
 
 /////////////////////////////////////
 
 const timeStep = 1 / 60; // seconds
 let lastCallTime;
 const score = document.getElementById('score-holder');
-
-score.innerHTML =`Score: ${userScore}`;
-
+let phiLen = 3.2;
+let thetaLen = 6.3;
 //////////////////////////////////////////////////////
 
 function animate() {
   requestAnimationFrame( animate );
   updatePositionForCamera(camera);
-  
+
   const time = performance.now() / 1000 // seconds
   if (!lastCallTime) {
     world.step(timeStep)
@@ -437,11 +486,19 @@ function animate() {
 
   torus.rotation.y += 0.01;
 
+  arrow.position.copy(car.position);
+  arrow.position.y = 4;
+  arrow.quaternion.rotateTowards(new THREE.Vector3(0, -10, 100));
+  arrow.rotation.z = Math.PI / 2;
+
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
+  
+  if(!explode){
+    ballMesh.position.copy(ballBody.position);
+    ballMesh.quaternion.copy(ballBody.quaternion);
+  }
 
-  ballMesh.position.copy(ballBody.position);
-  ballMesh.quaternion.copy(ballBody.quaternion);
   cube.position.copy(cubeBody.position);
   cube.quaternion.copy(cubeBody.quaternion);
   if(clicked != 1 && clicked > -30){
@@ -455,6 +512,16 @@ function animate() {
     torus.geometry = new THREE.TorusGeometry( x -= 0.075, y -=0.035 , z += .03 , w );
     torus.rotation.y += 0.08
   };
+
+  if(explode){
+    ballMesh.geometry = new THREE.SphereGeometry(radius += .8, 32, 32, 0, phiLen -= .045, 0, thetaLen -= .045 )
+    ballMesh.rotation.y += .08;
+    
+    ballMesh.material.color.setHex(colors[Math.floor(Math.random() * 6)])
+  }
+
+  score.innerHTML =`Score: ${userScore}`;
+
   camera.lookAt(car.position);
 
   renderer.render( scene, camera );
