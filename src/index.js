@@ -4,6 +4,7 @@ import * as CANNON from 'cannon-es';
 import cannonDebugger from 'cannon-es-debugger';
 import { TetrahedronGeometry, Vector3 } from 'three';
 
+// MAKE BOX PRYMID TO SMASH THROUGH IN BEGGINING
 
 let keyboard = {
   ArrowUp: false,
@@ -37,18 +38,18 @@ const container = document.querySelector('#scene-canvas');
   
 
   const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -55, 0), // m/s²
+    gravity: new CANNON.Vec3(0, -30, 0), // m/s²
   })
   world.broadphase = new CANNON.SAPBroadphase(world);
-  world.defaultContactMaterial.friction = 0;
+  world.defaultContactMaterial.friction = 1;
 
 
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
   const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
-    friction: 0.3,
-    restitution: 0.9,
-    contactEquationStiffness: 100000
+    friction: 0.2,
+    restitution: 0.1,
+    contactEquationStiffness: 10000
   });
 
   // We must add the contact materials to the world
@@ -56,7 +57,7 @@ const container = document.querySelector('#scene-canvas');
   world.defaultContactMaterial = wheelGroundContactMaterial;
 
 
-  cannonDebugger(scene, world.bodies);
+  // cannonDebugger(scene, world.bodies);
 
 
   const groundBody = new CANNON.Body({
@@ -69,13 +70,13 @@ const container = document.querySelector('#scene-canvas');
   world.addBody(groundBody)
 
   meshFloor = new THREE.Mesh(
-    new THREE.PlaneGeometry(200, 200, 100, 100),
+    new THREE.PlaneGeometry(400, 700, 100, 100),
     new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true})
   )
   meshFloor.rotation.x -= Math.PI /2;
-  meshFloor.position.y =0
+  meshFloor.position.y = 0;
+  meshFloor.position.z = 200;
   scene.add(meshFloor);
-
   
   // const chassisShape = new CANNON.Box(new CANNON.Vec3(1, 0.5, 2));
   // const chassisBody = new CANNON.Body({ mass: 150, material: groundMaterial });
@@ -85,8 +86,8 @@ const container = document.querySelector('#scene-canvas');
   // THREE.JS WALLS /////////////////////////////////
 
   const meshWall1 = new THREE.Mesh(
-    new THREE.BoxGeometry(100, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false}) 
+    new THREE.BoxGeometry(170, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false}) //goal FRONT WALL
   )
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
@@ -95,7 +96,7 @@ const container = document.querySelector('#scene-canvas');
 
   
   const meshWall2 = new THREE.Mesh(
-    new THREE.BoxGeometry(100, 10, 10),
+    new THREE.BoxGeometry(170, 10, 10),
     new THREE.MeshToonMaterial({ color: 0xf55742, wireframe: false, opacity: 0.27}) 
   );
   meshWall2.position.z = -100;
@@ -120,8 +121,8 @@ const container = document.querySelector('#scene-canvas');
   // CANNON-ES WALLS /////////////////////////////
 
   const halfExtentsX = new CANNON.Vec3(50, 9 , 5);
-  const halfExtentsLarge = new CANNON.Vec3(100, 9 , 5);
-
+  const halfExtentsLarge = new CANNON.Vec3(180, 9 , 5);
+  const halfExtentsXLarge = new CANNON.Vec3(200, 9 , 5);
 
   const wallBound1 = new CANNON.Body({
     shape: new CANNON.Box(halfExtentsX),
@@ -143,7 +144,7 @@ const container = document.querySelector('#scene-canvas');
   
   const wallBound3 = new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(halfExtentsLarge),
+    shape: new CANNON.Box(halfExtentsXLarge),
     material: groundMaterial
   })
   wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0) //BLUE
@@ -152,28 +153,71 @@ const container = document.querySelector('#scene-canvas');
   
   const wallBound4= new CANNON.Body({
     mass: 0,
-    shape: new CANNON.Box(halfExtentsLarge),
+    shape: new CANNON.Box(halfExtentsXLarge),
     material: groundMaterial,
   })
   wallBound4.position.set(-100, 4.5 , 0);
   // wallBound4.quaternion.setFromEuler(0, -Math.PI / 2, 0);  
   wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) // YELLOW
-  // world.addBody(wallBound4)
-
+  world.addBody(wallBound4)
 
   // Make sure to use correct +- sign for plane so that plane is facing up. Affects gravity...
   // wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) ^^ SAME THING ^^
 
+  // PORTFOLIO AREA ///////////////////////////////
+
+  const legGeo = new THREE.BoxGeometry(1, 8, 1);
+  const legMater = new THREE.MeshToonMaterial({color: 0X2D2E2D});
+  const leg1 = new THREE.Mesh(legGeo, legMater);
+  leg1.position.set(0, 4, 190);
+  scene.add(leg1);
+
+  const leg2 = new THREE.Mesh(legGeo, legMater);
+  scene.add(leg2);
+  leg1.add(leg2);
+  leg2.position.x = -7;
+
+  const shaftGeo = new THREE.BoxGeometry(8, 1, 1);
+  const shaft1 = new THREE.Mesh(shaftGeo, legMater);
+  scene.add(shaft1);
+  leg1.add(shaft1);
+  shaft1.position.y = 4;
+  shaft1.position.x = -3.5;
+
+  const shaft2 = new THREE.Mesh(shaftGeo, legMater);
+  scene.add(shaft2);
+  leg1.add(shaft2);
+  shaft2.position.y = -4;
+  shaft2.position.x = -3.5;
+
+  const interactGeo = new THREE.BoxGeometry(8, 1, 4);
+  const interact1 = new THREE.Mesh(interactGeo, legMater);
+  scene.add(interact1);
+  leg1.add(interact1);
+  interact1.position.y = -4.5;
+  interact1.position.z = -16;
+  interact1.position.x = -3.5;
+
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////
+
+
 
   //PROPS/////////////////////////////////////////////
     
-  let radius = 5.1 // m
+  let radius = 4 // m
   const geometry6 = new THREE.SphereGeometry(radius)
   const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
   const ballMesh = new THREE.Mesh(geometry6, material6)
   scene.add(ballMesh)
   const ballBody = new CANNON.Body({
-    mass: 7, // kg
+    mass: 70, // kg
     shape: new CANNON.Sphere(radius),
   })
   ballBody.position.set(0, 20, 0) // m
@@ -192,13 +236,11 @@ const container = document.querySelector('#scene-canvas');
   world.addBody(cubeBody);
 ///////////////////////////////////////////////////////////////
 
-
-
 // const carBody = new CANNON.Body({mass: 2, shape: boxShape, material: wheelMaterial});
 
 const shape = new CANNON.Sphere(3);
 const carBody = new CANNON.Body({
-  mass: 200,
+  mass: 100,
   shape: shape
 })
 
@@ -221,8 +263,6 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
     box = new THREE.Box3().setFromObject( car );
     car.position.set(carX, carY, carZ);
 	  scene.add( car );
-
-
 }, undefined, function ( error ) {
 
 	console.log( error );
@@ -231,24 +271,14 @@ loader.load( 'src/car_sel.glb', function ( gltf ) {
 	car = gltf.scene;
 });
 
-const arrowGeo = new THREE.CylinderGeometry(0, 1, 4, 32)
-const arrowMesh = new THREE.MeshNormalMaterial({color: 0xFF00FF});
-const arrow = new THREE.Mesh(arrowGeo, arrowMesh);
-arrow.position.set(-20, 5, 0);
+const arrowMesh = new THREE.MeshNormalMaterial({color: 0xFF00FF, opacity: 0.2});
 
-scene.add(arrow)
-console.log(arrow)
-const goalGeo = new THREE.BoxGeometry(25, 5, 5);
-const goalMater = new THREE.MeshToonMaterial({color: 0x00FF00})
-const goalFar = new THREE.Mesh(goalGeo, goalMater)
-goalFar.position.set(0, 2.5, 90)
+const goalGeo = new THREE.BoxGeometry(40, 15, 15, 1, 1, 10);
+const goalMater = new THREE.MeshToonMaterial({color: 0x00FF00, wireframe: true});
+const goalFar = new THREE.Mesh(goalGeo, goalMater);
+goalFar.position.set(0, 2.5, 87);
 scene.add(goalFar);
-console.log(goalFar)
-
-// if(car){
-//   car.add(arrow)
-// }
-
+console.log(goalFar);
 
 // Add lights
 let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
@@ -331,7 +361,7 @@ loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
 
 scene.add()
 
-function updatePositionForCamera(camera) {
+function updatePositionForCamera() {
   const dx = Math.abs(torus.position.x - car.position.x);
   const dz = Math.abs(torus.position.z - car.position.z);
   const goalx = Math.abs(goalFar.position.x - ballMesh.position.x);
@@ -348,7 +378,7 @@ function updatePositionForCamera(camera) {
       }, 1000);
   }
 
-  if(goalx < 1 && goalz < 1){
+  if(goalx < 13 && goalz < 13){
     const select = scene.getObjectById(ballMesh.id);
     userScore += 1000;
     explode = true;
@@ -361,7 +391,6 @@ function updatePositionForCamera(camera) {
 
   }
 }
-
 
 // Event Listeners ///////////////////
 
@@ -429,8 +458,21 @@ let lastCallTime;
 const score = document.getElementById('score-holder');
 let phiLen = 3.2;
 let thetaLen = 6.3;
-//////////////////////////////////////////////////////
 
+// MAKE ARROW TURN TO TARGET////////////////////////////////////////////////////
+const boxArrGeo = new THREE.BoxGeometry(0.25, 0.25, 1.5);
+const boxArrow = new THREE.Mesh(boxArrGeo, arrowMesh);
+
+const coneGeo = new THREE.ConeGeometry( 0.3, 0.3, 4 );
+const coneMater = new THREE.MeshNormalMaterial({color: 0xFF00FF, opacity: 0.2});
+const arrowHead = new THREE.Mesh(coneGeo, coneMater);
+arrowHead.rotation.x = Math.PI / 2
+scene.add(arrowHead);
+boxArrow.add(arrowHead);
+arrowHead.position.z += 0.9
+scene.add(boxArrow);
+
+/////////////////////////////////////////////////////
 function animate() {
   requestAnimationFrame( animate );
   updatePositionForCamera(camera);
@@ -453,7 +495,7 @@ function animate() {
     camera.lookAt(car.position);
 	}
   if (keyboard['KeyW']){
-    camera.position.y = 15;
+    camera.position.y = 30;
     camera.lookAt(car);
   }else{
     camera.position.y = 3;
@@ -486,10 +528,9 @@ function animate() {
 
   torus.rotation.y += 0.01;
 
-  arrow.position.copy(car.position);
-  arrow.position.y = 4;
-  arrow.quaternion.rotateTowards(new THREE.Vector3(0, -10, 100));
-  arrow.rotation.z = Math.PI / 2;
+  boxArrow.position.copy(car.position)
+  boxArrow.position.y = 3;
+  boxArrow.lookAt(goalFar.position)
 
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
@@ -515,7 +556,8 @@ function animate() {
 
   if(explode){
     ballMesh.geometry = new THREE.SphereGeometry(radius += .8, 32, 32, 0, phiLen -= .045, 0, thetaLen -= .045 )
-    ballMesh.rotation.y += .08;
+    ballMesh.rotation.y += .15;
+    ballMesh.position.y += 0.1
     
     ballMesh.material.color.setHex(colors[Math.floor(Math.random() * 6)])
   }
