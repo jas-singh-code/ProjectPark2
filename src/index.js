@@ -405,13 +405,17 @@ function updatePositionForCamera() {
   const viewPhysics = document.getElementById('enable-physics');
   let enablePhysics = false;
 
+    viewPhysics.addEventListener('click', () => {
+    enablePhysics = !enablePhysics;
+  })
+
   const viewFullscreen = document.getElementById('view-fullscreen');
   let clicked = 1;
   const message = document.getElementById('message');
 
-  viewPhysics.addEventListener('click', () => {
-    enablePhysics = !enablePhysics;
-  })
+  // viewPhysics.addEventListener('click', () => {
+  //   enablePhysics = !enablePhysics;
+  // })
 
   cancle.addEventListener('click', 
   function(){
@@ -534,6 +538,10 @@ function animate() {
 
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
+
+  if (enablePhysics){
+    cannonDebugger(scene, world.bodies);
+  }
   
   if(!explode){
     ballMesh.position.copy(ballBody.position);

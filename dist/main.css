@@ -65,10 +65,10 @@ h2 {
     align-items: center;
     flex-direction: column;
     position: absolute;
-    top: 25%;
-    left: 17%;
+    top: 15%;
+    left: 8%;
     background-color: white;
-    width: 65%;
+    width: 80%;
     height: auto;
     border-radius: 5px;
     padding: 22px;
