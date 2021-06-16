@@ -84,8 +84,8 @@ const container = document.querySelector('#scene-canvas');
   // THREE.JS WALLS /////////////////////////////////
 
   const meshWall1 = new THREE.Mesh(
-    new THREE.BoxGeometry(170, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false}) //goal FRONT WALL
+    new THREE.BoxGeometry(175, 10, 10),
+    new THREE.MeshBasicMaterial({ color: 0x303030, wireframe: false}) //goal FRONT WALL
   )
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
@@ -94,15 +94,15 @@ const container = document.querySelector('#scene-canvas');
 
   
   const meshWall2 = new THREE.Mesh(
-    new THREE.BoxGeometry(170, 10, 10),
-    new THREE.MeshToonMaterial({ color: 0xf55742, wireframe: false, opacity: 0.27}) 
+    new THREE.BoxGeometry(175, 10, 10),
+    new THREE.MeshToonMaterial({ color: 0x303030, wireframe: false}) 
   );
   meshWall2.position.z = -100;
   scene.add(meshWall2);
 
   const meshWall3 = new THREE.Mesh(
     new THREE.BoxGeometry(200, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xF0F8FF, wireframe: false}) // LEFT WALL
+    new THREE.MeshBasicMaterial({ color: 0x303030, wireframe: false}) // LEFT WALL
   )
   meshWall3.rotation.y -= Math.PI / 2;
   meshWall3.position.x = 100;
@@ -110,7 +110,7 @@ const container = document.querySelector('#scene-canvas');
   
   const meshWall4 = new THREE.Mesh(
     new THREE.BoxGeometry(200, 10, 10),
-    new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: false}) // RIGHT WALL
+    new THREE.MeshBasicMaterial({ color: 0x303030, wireframe: false}) // RIGHT WALL
     )
   meshWall4.rotation.y -= Math.PI / 2;
   meshWall4.position.x = -100;
@@ -123,7 +123,7 @@ const container = document.querySelector('#scene-canvas');
   const halfExtentsXLarge = new CANNON.Vec3(200, 9 , 5);
 
   const wallBound1 = new CANNON.Body({
-    shape: new CANNON.Box(halfExtentsX),
+    shape: new CANNON.Box(halfExtentsXLarge),
     material: groundMaterial,
     mass: 0,
   })
@@ -133,7 +133,7 @@ const container = document.querySelector('#scene-canvas');
   
   const wallBound2 = new CANNON.Body({
     mass: 0, // can also be achieved by setting the mass to 0
-    shape: new CANNON.Box(halfExtentsX),
+    shape: new CANNON.Box(halfExtentsXLarge),
     material: groundMaterial
   })
   // wallBound2.quaternion.setFromEuler(0, 0, -Math.PI / 2) //RED
@@ -514,7 +514,7 @@ function animate() {
 
   if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
   {
-      player.speed = 1.95
+      player.speed = 1.00
       angle = 0.03;
   } else {
       player.speed = .35
