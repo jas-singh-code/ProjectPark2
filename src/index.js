@@ -36,29 +36,27 @@ const container = document.querySelector('#scene-canvas');
   renderer.shadowMap.enabled = true;
   document.body.append( renderer.domElement );
   
-
   const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -30, 0), // m/s²
+    gravity: new CANNON.Vec3(0, -17, 0), // m/s²
   })
-  world.broadphase = new CANNON.SAPBroadphase(world);
-  world.defaultContactMaterial.friction = 1;
+  // world.broadphase = new CANNON.SAPBroadphase(world);
+  world.broadphase = new CANNON.NaiveBroadphase();
+  world.defaultContactMaterial.friction = 0.1;
 
 
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
   const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
-    friction: 0.2,
+    friction: 0.1,
     restitution: 0.1,
-    contactEquationStiffness: 10000
+    contactEquationStiffness: 5000
   });
 
   // We must add the contact materials to the world
   world.addContactMaterial(wheelGroundContactMaterial);
   world.defaultContactMaterial = wheelGroundContactMaterial;
 
-
   // cannonDebugger(scene, world.bodies);
-
 
   const groundBody = new CANNON.Body({
     mass: 0, // can also be achieved by setting the mass to 0
@@ -198,26 +196,19 @@ const container = document.querySelector('#scene-canvas');
   interact1.position.z = -16;
   interact1.position.x = -3.5;
 
-
-
-
-
-
-
-
   ////////////////////////////////////////////////
 
 
 
   //PROPS/////////////////////////////////////////////
     
-  let radius = 4 // m
+  let radius = 3 // m
   const geometry6 = new THREE.SphereGeometry(radius)
   const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
   const ballMesh = new THREE.Mesh(geometry6, material6)
   scene.add(ballMesh)
   const ballBody = new CANNON.Body({
-    mass: 70, // kg
+    mass: 10, // kg
     shape: new CANNON.Sphere(radius),
   })
   ballBody.position.set(0, 20, 0) // m
@@ -240,7 +231,7 @@ const container = document.querySelector('#scene-canvas');
 
 const shape = new CANNON.Sphere(3);
 const carBody = new CANNON.Body({
-  mass: 100,
+  mass: 10,
   shape: shape
 })
 
@@ -539,9 +530,9 @@ function animate() {
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
 
-  if (enablePhysics){
-    cannonDebugger(scene, world.bodies);
-  }
+  // if (enablePhysics){
+  //   cannonDebugger(scene, world.bodies);
+  // }
   
   if(!explode){
     ballMesh.position.copy(ballBody.position);
