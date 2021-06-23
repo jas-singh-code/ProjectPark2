@@ -4,7 +4,11 @@ Project Park is a 3-d open world game inspired from Rocket League. Users start b
 
 Finally, the game never ends but there is an option to end the game, after with, a modal with the authors' personal links are displayed.
 
-[View the Live Site Here!](https://jas-singh-code.github.io/ProjectPark2/)
+<h1 align="center" ><a href='https://jas-singh-code.github.io/ProjectPark2/'>
+  View the Live Site Here! </a>
+</h1>
+
+<!-- # [View the Live Site Here!](https://jas-singh-code.github.io/ProjectPark2/) -->
 
 1. [Background and Overview](https://github.com/jas-singh-code/ProjectPark2/wiki/Background-and-Overview) 
 2. [Functionality and MVPs](https://github.com/jas-singh-code/ProjectPark2/wiki/Functionality-and-MVPs)
