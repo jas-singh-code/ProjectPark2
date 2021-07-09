@@ -4,7 +4,7 @@ import * as CANNON from 'cannon-es';
 import cannonDebugger from 'cannon-es-debugger';
 import { TetrahedronGeometry, Vector3 } from 'three';
 
-// MAKE BOX PRYMID TO SMASH THROUGH IN BEGGINING
+// MAKE BOX PRYAMID TO SMASH THROUGH IN BEGINNING
 
 let keyboard = {
   ArrowUp: false,
@@ -36,25 +36,38 @@ const container = document.querySelector('#scene-canvas');
   renderer.shadowMap.enabled = true;
   document.body.append( renderer.domElement );
   
+  // const world = new CANNON.World({
+  //   gravity: new CANNON.Vec3(0, -17, 0), // m/s²
+  // })
+  // // world.broadphase = new CANNON.SAPBroadphase(world);
+  
   const world = new CANNON.World({
-    gravity: new CANNON.Vec3(0, -17, 0), // m/s²
+    gravity: new CANNON.Vec3(0, -20, 0)
   })
-  // world.broadphase = new CANNON.SAPBroadphase(world);
+  world.solver.tolerance = 0.001;
   world.broadphase = new CANNON.NaiveBroadphase();
   world.defaultContactMaterial.friction = 0.1;
-
+  
 
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
   const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
-    friction: 0.1,
-    restitution: 0.1,
+    friction: 0.7,
+    restitution: 0.2,
     contactEquationStiffness: 5000
   });
 
-  // We must add the contact materials to the world
+  const bodyToBodyContactMaterial = new CANNON.ContactMaterial(wheelMaterial,wheelMaterial, {
+    friction: 0.9,
+    restitution: 0.9
+  })
+  world.addContactMaterial(bodyToBodyContactMaterial);
+
   world.addContactMaterial(wheelGroundContactMaterial);
-  world.defaultContactMaterial = wheelGroundContactMaterial;
+
+  // We must add the contact materials to the world
+  // world.addContactMaterial(wheelGroundContactMaterial);
+  // world.defaultContactMaterial = wheelGroundContactMaterial;
 
   // cannonDebugger(scene, world.bodies);
 
@@ -118,13 +131,13 @@ const container = document.querySelector('#scene-canvas');
 
   // CANNON-ES WALLS /////////////////////////////
 
-  const halfExtentsX = new CANNON.Vec3(50, 9 , 5);
+ 
   const halfExtentsLarge = new CANNON.Vec3(180, 9 , 5);
   const halfExtentsXLarge = new CANNON.Vec3(200, 9 , 5);
 
   const wallBound1 = new CANNON.Body({
     shape: new CANNON.Box(halfExtentsXLarge),
-    material: groundMaterial,
+    // material: groundMaterial,
     mass: 0,
   })
   wallBound1.position.set(0,3, 100);
@@ -134,7 +147,7 @@ const container = document.querySelector('#scene-canvas');
   const wallBound2 = new CANNON.Body({
     mass: 0, // can also be achieved by setting the mass to 0
     shape: new CANNON.Box(halfExtentsXLarge),
-    material: groundMaterial
+    // material: groundMaterial
   })
   // wallBound2.quaternion.setFromEuler(0, 0, -Math.PI / 2) //RED
   wallBound2.position.set(0, 3, -100)
@@ -143,7 +156,7 @@ const container = document.querySelector('#scene-canvas');
   const wallBound3 = new CANNON.Body({
     mass: 0,
     shape: new CANNON.Box(halfExtentsXLarge),
-    material: groundMaterial
+    // material: groundMaterial
   })
   wallBound3.quaternion.setFromEuler(0, -Math.PI / 2 , 0) //BLUE
   wallBound3.position.set(100, 3 , 0);
@@ -152,7 +165,7 @@ const container = document.querySelector('#scene-canvas');
   const wallBound4= new CANNON.Body({
     mass: 0,
     shape: new CANNON.Box(halfExtentsXLarge),
-    material: groundMaterial,
+    // material: groundMaterial,
   })
   wallBound4.position.set(-100, 4.5 , 0);
   // wallBound4.quaternion.setFromEuler(0, -Math.PI / 2, 0);  
@@ -161,6 +174,94 @@ const container = document.querySelector('#scene-canvas');
 
   // Make sure to use correct +- sign for plane so that plane is facing up. Affects gravity...
   // wallBound4.quaternion.setFromAxisAngle(new CANNON.Vec3(0,1,0), Math.PI/2) ^^ SAME THING ^^
+
+
+  // Smashable walls
+  const cubeWidth = 2;
+  const meshCube1 = new THREE.BoxGeometry(cubeWidth, cubeWidth, cubeWidth);
+
+  const redMaterial = new THREE.MeshToonMaterial( {color: 0X800000 } );
+  const blueMaterial = new THREE.MeshToonMaterial( {color: 0X0000ff } );
+  const pinkMaterial = new THREE.MeshToonMaterial( {color: 0Xffc0cb } );
+  const whiteMaterial = new THREE.MeshToonMaterial( {color: 0Xffffff } );
+  const yellowMaterial = new THREE.MeshToonMaterial( {color: 0Xffff00 } );
+  const greenMaterial = new THREE.MeshToonMaterial( {color: 0X00ff00 } );
+
+
+  const threeCube1 = new THREE.Mesh(meshCube1, redMaterial);
+  const threeCube2 = new THREE.Mesh(meshCube1, blueMaterial);
+  const threeCube3 = new THREE.Mesh(meshCube1, pinkMaterial);
+  const threeCube4 = new THREE.Mesh(meshCube1, whiteMaterial);
+  const threeCube5 = new THREE.Mesh(meshCube1, yellowMaterial);
+  const threeCube6 = new THREE.Mesh(meshCube1, greenMaterial);
+
+  scene.add(threeCube1);
+  scene.add(threeCube2);
+  scene.add(threeCube3);
+  scene.add(threeCube4);
+  scene.add(threeCube5);
+  scene.add(threeCube6);
+
+  // threeCube1.position.set(0, 1.5, -78);
+  // threeCube2.position.set(1.5, 1.5, -78);
+  // threeCube3.position.set(-1.5, 1.5, -78);
+  // threeCube4.position.set(0.75, 3.0, -78);
+  // threeCube5.position.set(-.75, 3.0, -78);
+  // threeCube6.position.set(0, 4.5, -78);
+ 
+ const halfExtentsCube = new CANNON.Vec3(cubeWidth -.9, cubeWidth -.9 , cubeWidth -.9);
+ const cubeMass = 50;
+
+  const canCube1 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  const canCube2 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  const canCube3 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  const canCube4 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  const canCube5 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  const canCube6 = new CANNON.Body({
+    mass: cubeMass,
+    shape: new CANNON.Box(halfExtentsCube),
+    material: wheelMaterial
+  })
+  
+  world.addBody(canCube1);
+  world.addBody(canCube2);
+  world.addBody(canCube3);
+  world.addBody(canCube4);
+  world.addBody(canCube5);
+  world.addBody(canCube6);
+
+  canCube1.position.set(0, cubeWidth, -78);
+  canCube2.position.set(cubeWidth + 0.3, cubeWidth, -78);
+  canCube3.position.set(-cubeWidth - 0.3, cubeWidth, -78);
+  canCube4.position.set((cubeWidth/2) + 0.3, (cubeWidth * 2), -78);
+  canCube5.position.set(-(cubeWidth/2) - 0.3, (cubeWidth * 2), -78);
+  canCube6.position.set(0, (cubeWidth * 3), -78);
+
+
+  //
+
+
+
 
   // PORTFOLIO AREA ///////////////////////////////
 
@@ -232,13 +333,14 @@ const container = document.querySelector('#scene-canvas');
 const shape = new CANNON.Sphere(3);
 const carBody = new CANNON.Body({
   mass: 10,
-  shape: shape
+  shape: shape,
+  material: wheelMaterial
 })
 
 carBody.position.set(-10, 6, -10);
 world.addBody(carBody);
 
-const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -100 };
+const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -88 };
 let userScore= 0
 
 /////////////////////////////////////////
@@ -392,7 +494,13 @@ function updatePositionForCamera() {
   const welcomeMenu2 = document.getElementById('welcome-menu-2');
   const slide1 = document.getElementById('slide-1');
   const slide2 = document.getElementById('slide-2');
+  const slide3 = document.getElementById('slide-3');
   const next = document.getElementById('next');
+  const next2 = document.getElementById('next2');
+
+  const slide4 = document.getElementById('slide-4');
+  const next3 = document.getElementById('next3');
+
   const viewPhysics = document.getElementById('enable-physics');
   let enablePhysics = false;
 
@@ -430,6 +538,32 @@ function updatePositionForCamera() {
   })
 
   next.addEventListener('click', () => {
+    // welcomeMenu.classList.remove('display');
+    // welcomeMenu.classList.add('hidden');
+    slide2.classList.remove('display');
+    slide2.classList.add('hidden');
+    slide3.classList.remove('hidden');
+    slide3.classList.add('display');
+    next.classList.remove('display')
+    next.classList.add('hidden')
+    next2.classList.remove('hidden')
+    next2.classList.add('display')
+  })
+
+  next2.addEventListener('click', () => {
+    // welcomeMenu.classList.remove('display');
+    // welcomeMenu.classList.add('hidden');
+    slide3.classList.remove('display');
+    slide3.classList.add('hidden');
+    slide4.classList.remove('hidden');
+    slide4.classList.add('display');
+    next2.classList.remove('display')
+    next2.classList.add('hidden')
+    next3.classList.remove('hidden')
+    next3.classList.add('display')
+  })
+
+  next3.addEventListener('click', () => {
     welcomeMenu.classList.remove('display');
     welcomeMenu.classList.add('hidden');
   })
@@ -514,7 +648,7 @@ function animate() {
 
   if(keyboard['ShiftLeft'] || keyboard["ShiftRight"])
   {
-      player.speed = 1.00
+      player.speed = 0.80
       angle = 0.03;
   } else {
       player.speed = .35
@@ -541,6 +675,21 @@ function animate() {
 
   cube.position.copy(cubeBody.position);
   cube.quaternion.copy(cubeBody.quaternion);
+
+  threeCube1.position.copy(canCube1.position);
+  threeCube1.quaternion.copy(canCube1.quaternion);
+  threeCube2.position.copy(canCube2.position);
+  threeCube2.quaternion.copy(canCube2.quaternion);
+  threeCube3.position.copy(canCube3.position);
+  threeCube3.quaternion.copy(canCube3.quaternion);
+  threeCube4.position.copy(canCube4.position);
+  threeCube4.quaternion.copy(canCube4.quaternion);
+  threeCube5.position.copy(canCube5.position);
+  threeCube5.quaternion.copy(canCube5.quaternion);
+  threeCube6.position.copy(canCube6.position);
+  threeCube6.quaternion.copy(canCube6.quaternion);
+  
+
   if(clicked != 1 && clicked > -30){
     camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 )
     renderer.setSize( window.innerWidth, window.innerHeight )
