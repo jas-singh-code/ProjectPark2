@@ -258,44 +258,39 @@ const container = document.querySelector('#scene-canvas');
   canCube6.position.set(0, (cubeWidth * 3), -78);
 
 
-  //
-
-
-
-
   // PORTFOLIO AREA ///////////////////////////////
 
-  const legGeo = new THREE.BoxGeometry(1, 8, 1);
-  const legMater = new THREE.MeshToonMaterial({color: 0X2D2E2D});
-  const leg1 = new THREE.Mesh(legGeo, legMater);
-  leg1.position.set(0, 4, 190);
-  scene.add(leg1);
+  // const legGeo = new THREE.BoxGeometry(1, 8, 1);
+  // const legMater = new THREE.MeshToonMaterial({color: 0X2D2E2D});
+  // const leg1 = new THREE.Mesh(legGeo, legMater);
+  // leg1.position.set(0, 4, 190);
+  // scene.add(leg1);
 
-  const leg2 = new THREE.Mesh(legGeo, legMater);
-  scene.add(leg2);
-  leg1.add(leg2);
-  leg2.position.x = -7;
+  // const leg2 = new THREE.Mesh(legGeo, legMater);
+  // scene.add(leg2);
+  // leg1.add(leg2);
+  // leg2.position.x = -7;
 
-  const shaftGeo = new THREE.BoxGeometry(8, 1, 1);
-  const shaft1 = new THREE.Mesh(shaftGeo, legMater);
-  scene.add(shaft1);
-  leg1.add(shaft1);
-  shaft1.position.y = 4;
-  shaft1.position.x = -3.5;
+  // const shaftGeo = new THREE.BoxGeometry(8, 1, 1);
+  // const shaft1 = new THREE.Mesh(shaftGeo, legMater);
+  // scene.add(shaft1);
+  // leg1.add(shaft1);
+  // shaft1.position.y = 4;
+  // shaft1.position.x = -3.5;
 
-  const shaft2 = new THREE.Mesh(shaftGeo, legMater);
-  scene.add(shaft2);
-  leg1.add(shaft2);
-  shaft2.position.y = -4;
-  shaft2.position.x = -3.5;
+  // const shaft2 = new THREE.Mesh(shaftGeo, legMater);
+  // scene.add(shaft2);
+  // leg1.add(shaft2);
+  // shaft2.position.y = -4;
+  // shaft2.position.x = -3.5;
 
-  const interactGeo = new THREE.BoxGeometry(8, 1, 4);
-  const interact1 = new THREE.Mesh(interactGeo, legMater);
-  scene.add(interact1);
-  leg1.add(interact1);
-  interact1.position.y = -4.5;
-  interact1.position.z = -16;
-  interact1.position.x = -3.5;
+  // const interactGeo = new THREE.BoxGeometry(8, 1, 4);
+  // const interact1 = new THREE.Mesh(interactGeo, legMater);
+  // scene.add(interact1);
+  // leg1.add(interact1);
+  // interact1.position.y = -4.5;
+  // interact1.position.z = -16;
+  // interact1.position.x = -3.5;
 
   ////////////////////////////////////////////////
 
