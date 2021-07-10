@@ -102,7 +102,7 @@ const container = document.querySelector('#scene-canvas');
   )
   // meshWall.rotation.x -= Math.PI /2;
   meshWall1.position.x = 0
-  meshWall1.position.z = 100
+  meshWall1.position.z = 200
   scene.add(meshWall1);
 
   
@@ -110,19 +110,20 @@ const container = document.querySelector('#scene-canvas');
     new THREE.BoxGeometry(175, 10, 10),
     new THREE.MeshToonMaterial({ color: 0x303030, wireframe: false}) 
   );
-  meshWall2.position.z = -100;
+  meshWall2.position.z = -150;
   scene.add(meshWall2);
 
   const meshWall3 = new THREE.Mesh(
-    new THREE.BoxGeometry(200, 10, 10),
+    new THREE.BoxGeometry(320, 10, 10),
     new THREE.MeshBasicMaterial({ color: 0x303030, wireframe: false}) // LEFT WALL
   )
   meshWall3.rotation.y -= Math.PI / 2;
   meshWall3.position.x = 100;
+  meshWall3.position.z = 5;
   scene.add(meshWall3);
   
   const meshWall4 = new THREE.Mesh(
-    new THREE.BoxGeometry(200, 10, 10),
+    new THREE.BoxGeometry(320, 10, 10),
     new THREE.MeshBasicMaterial({ color: 0x303030, wireframe: false}) // RIGHT WALL
     )
   meshWall4.rotation.y -= Math.PI / 2;
@@ -335,7 +336,7 @@ const carBody = new CANNON.Body({
 carBody.position.set(-10, 6, -10);
 world.addBody(carBody);
 
-const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -88 };
+const {carX, carY, carZ} = {carX: 0, carY: .3, carZ: -130 };
 let userScore= 0
 
 /////////////////////////////////////////
@@ -364,7 +365,7 @@ const arrowMesh = new THREE.MeshNormalMaterial({color: 0xFF00FF, opacity: 0.2});
 const goalGeo = new THREE.BoxGeometry(40, 15, 15, 1, 1, 10);
 const goalMater = new THREE.MeshToonMaterial({color: 0x00FF00, wireframe: true});
 const goalFar = new THREE.Mesh(goalGeo, goalMater);
-goalFar.position.set(0, 2.5, 87);
+goalFar.position.set(0, 2.5, 180);
 scene.add(goalFar);
 console.log(goalFar);
 
