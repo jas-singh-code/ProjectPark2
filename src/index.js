@@ -476,7 +476,7 @@ function updatePositionForCamera() {
       ballBody.position.set(0,0,0)
       scene.remove(select); 
       world.removeBody(ballBody);
-    }, 1000)
+    }, 1500)
 
   }
 }
@@ -615,8 +615,10 @@ function animate() {
     car.position.z += Math.sin(car.rotation.y) * player.speed;
     car.position.x += -Math.cos(car.rotation.y) * player.speed;
     
-    camera.position.z = car.position.z - 4;
-    camera.position.x = car.position.x - 4;
+    camera.position.z = car.position.z - 6;
+    // camera.position.x = car.position.x - 4;
+    // camera.position.z = car.position.z;
+    camera.position.x = car.position.x;
     camera.lookAt(car.position);
 	}
   if (keyboard['KeyW']){
@@ -625,12 +627,17 @@ function animate() {
   }else{
     camera.position.y = 3;
   }
+  if (keyboard['KeyE']){
+    camera.lookAt(ballMesh)
+  }
 
 	if (keyboard["ArrowDown"]){
     car.position.z -= Math.sin(car.rotation.y) * player.speed;
 		car.position.x -= -Math.cos(car.rotation.y) * player.speed;
-    camera.position.z = car.position.z - 4;
-    camera.position.x = car.position.x - 4;
+    camera.position.z = car.position.z - 6;
+    // camera.position.x = car.position.x - 4;
+    // camera.position.z = car.position.z;
+    camera.position.x = car.position.x;
     camera.lookAt(car.position);
 	}
 
@@ -655,7 +662,7 @@ function animate() {
 
   boxArrow.position.copy(car.position)
   boxArrow.position.y = 3;
-  boxArrow.lookAt(goalFar.position)
+  boxArrow.lookAt(ballMesh.position)
 
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
