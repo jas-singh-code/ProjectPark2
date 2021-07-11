@@ -15,12 +15,12 @@ let meshFloor;
 let angle = 0.02;
 let box;
 const colors = {
-  0: 0xFF0000, 
-  1: 0x002EFF,
-  2: 0x00B413,
-  3: 0xFFF000,
-  4: 0xFF00BD,
-  5: 0xB200FF
+  0: 0xFF0000, //Red
+  1: 0x002EFF, //Blue
+  2: 0x00B413, //Green
+  3: 0xFFF000, //Yellow
+  4: 0xFF00BD, //Pink
+  5: 0xB200FF  //Purple
 }
 
 const container = document.querySelector('#scene-canvas');
@@ -39,31 +39,31 @@ const container = document.querySelector('#scene-canvas');
   // const world = new CANNON.World({
   //   gravity: new CANNON.Vec3(0, -17, 0), // m/s²
   // })
-  // // world.broadphase = new CANNON.SAPBroadphase(world);
+  // world.broadphase = new CANNON.SAPBroadphase();
   
   const world = new CANNON.World({
     gravity: new CANNON.Vec3(0, -20, 0)
   })
   world.solver.tolerance = 0.001;
   world.broadphase = new CANNON.NaiveBroadphase();
-  world.defaultContactMaterial.friction = 0.1;
+  world.defaultContactMaterial.friction = 0.5;
   
 
   const groundMaterial = new CANNON.Material("groundMaterial");
   const wheelMaterial = new CANNON.Material("wheelMaterial");
   const wheelGroundContactMaterial = new CANNON.ContactMaterial(wheelMaterial, groundMaterial, {
-    friction: 0.7,
-    restitution: 0.2,
-    contactEquationStiffness: 5000
+    friction: 0.4,
+    restitution: 0.1,
+    contactEquationStiffness: 10000
   });
 
   const bodyToBodyContactMaterial = new CANNON.ContactMaterial(wheelMaterial,wheelMaterial, {
-    friction: 0.9,
-    restitution: 0.9
+    friction: 0.1,
+    restitution: 1
   })
-  world.addContactMaterial(bodyToBodyContactMaterial);
+  // world.addContactMaterial(bodyToBodyContactMaterial);
 
-  world.addContactMaterial(wheelGroundContactMaterial);
+  // world.addContactMaterial(wheelGroundContactMaterial);
 
   // We must add the contact materials to the world
   // world.addContactMaterial(wheelGroundContactMaterial);
@@ -134,7 +134,7 @@ const container = document.querySelector('#scene-canvas');
 
  
   const halfExtentsLarge = new CANNON.Vec3(180, 9 , 5);
-  const halfExtentsXLarge = new CANNON.Vec3(200, 9 , 5);
+  const halfExtentsXLarge = new CANNON.Vec3(200, 30 , 5);
 
   const wallBound1 = new CANNON.Body({
     shape: new CANNON.Box(halfExtentsXLarge),
@@ -301,8 +301,10 @@ const container = document.querySelector('#scene-canvas');
     
   let radius = 3 // m
   const geometry6 = new THREE.SphereGeometry(radius)
+  const geometry7 = new THREE.SphereGeometry(radius)
   const material6 = new THREE.MeshToonMaterial({color: '#191970', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
-  const ballMesh = new THREE.Mesh(geometry6, material6)
+  const material7 = new THREE.MeshToonMaterial({color: '#800000', emissiveIntensity: 0.6, lightMapIntensity: 0.6})
+  const ballMesh = new THREE.Mesh(geometry6, material6);
   scene.add(ballMesh)
   const ballBody = new CANNON.Body({
     mass: 10, // kg
@@ -310,6 +312,18 @@ const container = document.querySelector('#scene-canvas');
   })
   ballBody.position.set(0, 20, 0) // m
   world.addBody(ballBody);
+  
+  let countAddBall2 = 0;
+  const ballMesh2 = new THREE.Mesh(geometry7, material7);
+  // ballMesh2.material.color.setHex(0x00B413)
+  const ballBody2 = new CANNON.Body({
+    mass: 10, // kg
+    shape: new CANNON.Sphere(radius),
+  })
+  ballBody2.position.set(0,70,0)
+
+
+
 
 
   const cubeGeometry = new THREE.BoxGeometry(3, 3, 3);
@@ -367,7 +381,7 @@ const goalMater = new THREE.MeshToonMaterial({color: 0x00FF00, wireframe: true})
 const goalFar = new THREE.Mesh(goalGeo, goalMater);
 goalFar.position.set(0, 2.5, 180);
 scene.add(goalFar);
-console.log(goalFar);
+// console.log(goalFar);
 
 // Add lights
 let hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.61);
@@ -430,6 +444,7 @@ document.body.addEventListener('keydown', keyDown);
 document.body.addEventListener('keyup', keyUp);
 
 let explode = false;
+let explode2 = false;
 
 const textLoader = new THREE.FontLoader();
 
@@ -450,11 +465,14 @@ loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
 
 scene.add()
 
+
 function updatePositionForCamera() {
   const dx = Math.abs(torus.position.x - car.position.x);
   const dz = Math.abs(torus.position.z - car.position.z);
   const goalx = Math.abs(goalFar.position.x - ballMesh.position.x);
   const goalz = Math.abs(goalFar.position.z - ballMesh.position.z);
+  const goalx2 = Math.abs(goalFar.position.x - ballMesh2.position.x);
+  const goalz2 = Math.abs(goalFar.position.z - ballMesh2.position.z);
 
   if (dz < 2 && dx < 2 ){
       torus.material.color.setHex( 0xffffff );
@@ -466,8 +484,11 @@ function updatePositionForCamera() {
         scene.remove(selected);
       }, 1000);
   }
+  if( !scene.getObjectById(ballMesh.id)){
 
-  if(goalx < 13 && goalz < 13){
+  }
+  
+  if(goalx < 15 && goalz < 15){
     const select = scene.getObjectById(ballMesh.id);
     userScore += 1000;
     explode = true;
@@ -476,7 +497,22 @@ function updatePositionForCamera() {
       ballBody.position.set(0,0,0)
       scene.remove(select); 
       world.removeBody(ballBody);
+      
+      explode = false
     }, 1500)
+
+    
+  }
+  if((goalx2 < 15 && goalz2 < 15) && !scene.getObjectById(ballMesh.id)){
+  const select2 = scene.getObjectById(ballMesh2.id);
+  userScore += 1000;
+  explode2 = true;
+    setTimeout(function(){
+      ballMesh2.position.set(0,0,0);
+      ballBody2.position.set(0,0,0)
+      scene.remove(select2); 
+      world.removeBody(ballBody2);
+    }, 900)
 
   }
 }
@@ -660,7 +696,37 @@ function animate() {
 
   boxArrow.position.copy(car.position)
   boxArrow.position.y = 3;
-  boxArrow.lookAt(ballMesh.position)
+  if(!!scene.getObjectById(ballMesh.id)){
+    boxArrow.lookAt(ballMesh.position)
+    // radius = 3;
+  }else{
+    // addSecondBall = true;
+    // const ballMesh2 = new THREE.Mesh(geometry6, material6);
+    // ballMesh2.material.color.setHex(colors[0])
+    // const ballBody2 = new CANNON.Body({
+    //   mass: 10, // kg
+    //   shape: new CANNON.Sphere(radius),
+    // })
+    // ballBody2.position.set(0,20,0)
+    countAddBall2 += 1;
+    if(countAddBall2 === 1){
+      scene.add(ballMesh2)
+      countAddBall2 += 1
+    }
+    // ballMesh2.position.set(0, 8, 0)
+
+    world.addBody(ballBody2)
+    // ballBody.position.set(0, 20, 0)
+    // if (addSecondBall){
+    //   addingBall();
+    if(!explode2){
+      ballMesh2.position.copy(ballBody2.position)
+      ballMesh2.quaternion.copy(ballBody2.quaternion)
+      boxArrow.lookAt(ballMesh2.position)
+    }
+    // }
+  }
+  // console.log(!!scene.getObjectById(ballMesh.id))
 
   carBody.position.copy(car.position);
   carBody.quaternion.copy(car.quaternion);
@@ -673,9 +739,10 @@ function animate() {
     cannonDebugger(scene, world.bodies);
   }
   
-  if(!explode){
+  if(!explode && !!scene.getObjectById(ballMesh.id)){
     ballMesh.position.copy(ballBody.position);
     ballMesh.quaternion.copy(ballBody.quaternion);
+    // world.clearForces()
   }
 
   cube.position.copy(cubeBody.position);
@@ -699,7 +766,7 @@ function animate() {
     camera = new THREE.PerspectiveCamera( 100, window.innerWidth / window.innerHeight, 1, 500 )
     renderer.setSize( window.innerWidth, window.innerHeight )
     clicked -= 1;
-    console.log(document.fullscreenElement)
+    // console.log(document.fullscreenElement)
   }
 
   if(shrink){
@@ -713,6 +780,14 @@ function animate() {
     ballMesh.position.y += 0.1
     
     ballMesh.material.color.setHex(colors[Math.floor(Math.random() * 6)])
+  }
+
+  if(explode2){
+    ballMesh2.geometry = new THREE.SphereGeometry(radius += .8, 32, 32, 0, phiLen -= .045, 0, thetaLen -= .045 )
+    ballMesh2.rotation.y += .15;
+    ballMesh2.position.y += 0.1
+    
+    ballMesh2.material.color.setHex(colors[Math.floor(Math.random() * 6)])
   }
 
   score.innerHTML =`Score: ${userScore}`;
