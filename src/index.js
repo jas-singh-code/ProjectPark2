@@ -258,6 +258,24 @@ const container = document.querySelector('#scene-canvas');
   canCube5.position.set(-(cubeWidth/2) - 0.3, (cubeWidth * 2), -78);
   canCube6.position.set(0, (cubeWidth * 3), -78);
 
+// Moving cylinder
+
+// const cylinderG = THREE.CylinderBufferGeometry()
+
+
+
+//
+
+
+
+
+
+
+
+
+
+
+
 
   // PORTFOLIO AREA ///////////////////////////////
 
@@ -423,7 +441,7 @@ const geometry3 = new THREE.TorusGeometry( x, y, z, w );
 const material3 = new THREE.MeshToonMaterial( { color: 0xffff00 } );
 const torus = new THREE.Mesh( geometry3, material3 );
 scene.add( torus );
-torus.position.set(0, 1, -20);
+torus.position.set(0, 1, 180);
 let shrink = false;
 
 ////////////////////
