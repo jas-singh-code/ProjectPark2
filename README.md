@@ -1,8 +1,8 @@
-# Background & Overview 
+# <div align='center'>Welcome to Project Park!</div>
 
-Project Park is a 3-d open world game inspired from Rocket League. Users start by learning the controlls in the stagging area and move onto the playground where there is a soccer net and a ball. If the user makes the goal, the ball explodes and the user score is added.
+<div align='center'><img src='https://user-images.githubusercontent.com/75297616/126233500-84cd2407-b0c5-42ad-92a9-7183cdd81b80.gif' /></div>
 
-Finally, the game never ends but there is an option to end the game, after with, a modal with the authors' personal links are displayed.
+Project Park is a 3-d open world game inspired from Rocket League. Users are given a car created using blender, which they can use to collide with various game props. The goal of the game is to try and score the ball in the net throughout several levels. Each time the user makes a goal, the ball explodes and the user increases its score.
 
 <h1 align="center" ><a href='https://jas-singh-code.github.io/ProjectPark2/'>
   View the Live Site Here! </a>
